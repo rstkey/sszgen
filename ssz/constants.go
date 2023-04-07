@@ -1,4 +1,4 @@
-package main
+package ssz
 
 const (
 	BytesPerLengthOffset = 4  // Number of bytes per serialized length offset

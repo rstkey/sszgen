@@ -267,12 +267,6 @@ type ErrorResponse struct {
 	Message []byte `ssz-max:"256"`
 }
 
-type Dummy struct {
-}
-
-type Interface interface {
-}
-
 type SyncCommittee struct {
 	PubKeys         [][]byte `json:"pubkeys" ssz-size:"512,48"`
 	AggregatePubKey [48]byte `json:"aggregate_pubkey" ssz-size:"48"`

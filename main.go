@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"go/format"
 	"os"
 
 	"golang.org/x/tools/go/packages"
@@ -46,7 +47,7 @@ type Config struct {
 }
 
 // process generates the Go code.
-func (cfg *Config) process() (code []byte, err error) {
+func (cfg *Config) process() ([]byte, error) {
 	// Load packages.
 	pcfg := &packages.Config{
 		Mode:       packages.NeedName | packages.NeedTypes | packages.NeedImports | packages.NeedDeps,
@@ -60,25 +61,36 @@ func (cfg *Config) process() (code []byte, err error) {
 	if len(ps) == 0 {
 		return nil, fmt.Errorf("no Go package found in %s", cfg.Dir)
 	}
+	if len(ps) != 1 {
+		return nil, fmt.Errorf("at most one package can be processed at the same time")
+	}
 	packages.PrintErrors(ps)
 
-	// Find the packages that were loaded.
-	for _, p := range ps {
-		if len(p.Errors) > 0 {
-			return nil, fmt.Errorf("package %s has errors", p.PkgPath)
-		}
-		types, err := parsePackage(p.Types, nil)
+	pkg := ps[0]
+	if len(pkg.Errors) > 0 {
+		return nil, fmt.Errorf("package %s has errors", pkg.PkgPath)
+	}
+	types, err := parsePackage(pkg.Types, nil)
+	if err != nil {
+		return nil, err
+	}
+	var (
+		ctx    = newGenContext(pkg.Types)
+		chunks [][]byte
+	)
+	for _, typ := range types {
+		ret, err := generate(ctx, typ)
 		if err != nil {
 			return nil, err
 		}
-		for _, typ := range types {
-			typCode, err := generate(typ)
-			if err != nil {
-				return nil, err
-			}
-			code = append(code, typCode...)
-		}
+		chunks = append(chunks, ret)
 	}
+	code := bytes.Join(chunks, []byte("\n\n"))
+
+	// Add package and imports definition and format code
+	code = append(ctx.header(), code...)
+	code, _ = format.Source(code)
+
 	// Add build comments.
 	// This is done here to avoid processing these lines with gofmt.
 	var header bytes.Buffer

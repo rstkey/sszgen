@@ -5,35 +5,23 @@ import (
 	"go/types"
 )
 
-func parsePackage(pkg *types.Package, names []string) ([]SSZType, error) {
+func parsePackage(pkg *types.Package, names []string) ([]sszType, error) {
 	if len(names) == 0 {
 		names = pkg.Scope().Names()
 	}
-	var types []SSZType
+	var types []sszType
 	for _, name := range names {
-		named, err := lookupStructType(pkg.Scope(), name)
+		named, err := lookupType(pkg.Scope(), name)
 		if err != nil {
 			return nil, err
 		}
-		typ, err := buildType(nil, named)
+		typ, err := buildType(nil, named, nil)
 		if err != nil {
 			return nil, err
 		}
 		types = append(types, typ)
 	}
 	return types, nil
-}
-
-func lookupStructType(scope *types.Scope, name string) (*types.Named, error) {
-	typ, err := lookupType(scope, name)
-	if err != nil {
-		return nil, err
-	}
-	_, ok := typ.Underlying().(*types.Struct)
-	if !ok {
-		return nil, errors.New("not a struct type")
-	}
-	return typ, nil
 }
 
 func lookupType(scope *types.Scope, name string) (*types.Named, error) {
