@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"go/types"
 
@@ -47,12 +46,11 @@ func buildType(named *types.Named, typ types.Type, tags []sizeTag) (sszType, err
 		return newPointer(named, t, tags)
 	case *types.Struct:
 		return newStruct(named, t)
-	case *types.Interface:
 	}
-	return nil, errors.New("unsupported type")
+	return nil, fmt.Errorf("unsupported type %s", typ.String())
 }
 
-type Basic struct {
+type sszBasic struct {
 	basic   *types.Basic
 	named   *types.Named
 	size    int
@@ -60,7 +58,7 @@ type Basic struct {
 	decoder string
 }
 
-func newBasic(named *types.Named, typ *types.Basic) (*Basic, error) {
+func newBasic(named *types.Named, typ *types.Basic) (*sszBasic, error) {
 	var (
 		size    int
 		encoder string
@@ -81,9 +79,9 @@ func newBasic(named *types.Named, typ *types.Basic) (*Basic, error) {
 		encoder = fmt.Sprintf("EncodeUint%d", size*8)
 		decoder = fmt.Sprintf("DecodeUint%d", size*8)
 	default:
-		return nil, fmt.Errorf("unhandled basic type: %v", typ)
+		return nil, fmt.Errorf("unsupported basic type: %s", typ.String())
 	}
-	return &Basic{
+	return &sszBasic{
 		basic:   typ,
 		named:   named,
 		size:    size,
@@ -92,55 +90,59 @@ func newBasic(named *types.Named, typ *types.Basic) (*Basic, error) {
 	}, nil
 }
 
-func (b *Basic) fixed() bool {
+func (b *sszBasic) fixed() bool {
 	return true
 }
 
-func (b *Basic) fixedSize() int {
+func (b *sszBasic) fixedSize() int {
 	return b.size
 }
 
-func (b *Basic) typeName() string {
+func (b *sszBasic) typeName() string {
 	return b.basic.String()
 }
 
-func (b *Basic) genSize(ctx *genContext, w string, obj string) string {
+func (b *sszBasic) genSize(ctx *genContext, w string, obj string) string {
 	return fmt.Sprintf("%s += %d\n", w, b.size)
 }
 
-func (b *Basic) genEncoder(ctx *genContext, obj string) string {
+func (b *sszBasic) genEncoder(ctx *genContext, obj string) string {
 	ctx.addImport(pkgPath, "")
 	if b.named != nil {
-		obj = fmt.Sprintf("%s(%s)", b.basic.String(), obj)
+		obj = fmt.Sprintf("%s(%s)", b.typeName(), obj) // explicit type conversion
 	}
 	return fmt.Sprintf("%s(w, %s)\n", ctx.qualifier(pkgPath, b.encoder), obj)
 }
 
-func (b *Basic) genDecoder(ctx *genContext, r string, obj string) string {
+func (b *sszBasic) genDecoder(ctx *genContext, r string, obj string) string {
 	var (
-		vname = ctx.tmpVar()
-		ename = ctx.tmpErr()
-		buf   bytes.Buffer
+		vid = ctx.tmpVar()
+		eid = ctx.tmpErr()
+		buf bytes.Buffer
 	)
 	ctx.addImport(pkgPath, "")
-	fmt.Fprintf(&buf, "%s, %s, %s := %s(%s)\n", r, vname, ename, ctx.qualifier(pkgPath, b.decoder), r)
-	fmt.Fprintf(&buf, "if %s != nil {\n", ename)
-	fmt.Fprintf(&buf, "return %s\n", ename)
+	fmt.Fprintf(&buf, "%s, %s, %s := %s(%s)\n", r, vid, eid, ctx.qualifier(pkgPath, b.decoder), r)
+	fmt.Fprintf(&buf, "if %s != nil {\n", eid)
+	fmt.Fprintf(&buf, "return %s\n", eid)
 	fmt.Fprint(&buf, "}\n")
-	fmt.Fprintf(&buf, "%s = %s\n", obj, vname)
+	if b.named != nil {
+		vid = fmt.Sprintf("%s(%s)", b.named.Obj().Name(), vid) // explicit type conversion
+	}
+	fmt.Fprintf(&buf, "%s = %s\n", obj, vid)
 	return buf.String()
 }
 
-type Vector struct {
+type sszVector struct {
 	array   *types.Array
 	named   *types.Named
 	elem    sszType
 	len     int64
 	tag     sizeTag
 	encoder string
+	decoder string
 }
 
-func newVector(named *types.Named, typ *types.Array, tags []sizeTag) (*Vector, error) {
+func newVector(named *types.Named, typ *types.Array, tags []sizeTag) (*sszVector, error) {
 	var (
 		tag    sizeTag
 		remain []sizeTag
@@ -158,81 +160,103 @@ func newVector(named *types.Named, typ *types.Array, tags []sizeTag) (*Vector, e
 	if err != nil {
 		return nil, err
 	}
-	var encoder string
-	if b, ok := elem.(*Basic); ok {
+	var (
+		encoder string
+		decoder string
+	)
+	if b, ok := elem.(*sszBasic); ok {
 		encoder = fmt.Sprintf("%ss", b.encoder)
+		decoder = fmt.Sprintf("%ss", b.decoder)
 	}
-	return &Vector{
+	return &sszVector{
 		array:   typ,
 		named:   named,
 		elem:    elem,
 		len:     typ.Len(),
 		tag:     tag,
 		encoder: encoder,
+		decoder: decoder,
 	}, nil
 }
 
-func (v *Vector) fixed() bool {
+func (v *sszVector) fixed() bool {
 	return v.elem.fixed()
 }
 
-func (v *Vector) fixedSize() int {
+func (v *sszVector) fixedSize() int {
 	if v.fixed() {
 		return int(v.len) * v.elem.fixedSize()
 	}
 	return ssz.BytesPerLengthOffset
 }
 
-func (v *Vector) typeName() string {
+func (v *sszVector) typeName() string {
 	return v.array.String()
 }
 
-func (v *Vector) genSize(ctx *genContext, w string, obj string) string {
+func (v *sszVector) genSize(ctx *genContext, w string, obj string) string {
 	if v.elem.fixed() {
 		return fmt.Sprintf("%s += %d\n", w, int(v.len)*v.elem.fixedSize())
 	}
 	var (
-		b  bytes.Buffer
-		vn = ctx.tmpVar()
+		b   bytes.Buffer
+		vid = ctx.tmpVar()
 	)
-	fmt.Fprintf(&b, "for _, %s := range %s {\n", vn, obj)
-	fmt.Fprintf(&b, "%s", v.elem.genSize(ctx, w, vn))
+	fmt.Fprintf(&b, "for _, %s := range %s {\n", vid, obj)
+	fmt.Fprintf(&b, "%s", v.elem.genSize(ctx, w, vid))
 	fmt.Fprint(&b, "}\n")
 	return b.String()
 }
 
-func (v *Vector) genEncoder(ctx *genContext, obj string) string {
+func (v *sszVector) genEncoder(ctx *genContext, obj string) string {
 	if v.encoder != "" {
 		return fmt.Sprintf("%s(w, %s[:])\n", ctx.qualifier(pkgPath, v.encoder), obj)
 	}
 	var b bytes.Buffer
 	if !v.elem.fixed() {
-		fmt.Fprintf(&b, "_o = len(%s)*4\n", obj)
+		oid := ctx.tmpVar()
+		fmt.Fprintf(&b, "%s := len(%s)*4\n", oid, obj)
 
-		vn := ctx.tmpVar()
-		fmt.Fprintf(&b, "for _, %s := range %s {\n", vn, obj)
-		fmt.Fprintf(&b, "%s(w, uint32(_o))\n", ctx.qualifier(pkgPath, "EncodeUint32"))
-		fmt.Fprintf(&b, "%s", v.elem.genSize(ctx, "_o", vn))
+		vid := ctx.tmpVar()
+		fmt.Fprintf(&b, "for _, %s := range %s {\n", vid, obj)
+		fmt.Fprintf(&b, "%s(w, uint32(%s))\n", ctx.qualifier(pkgPath, "EncodeUint32"), oid)
+		fmt.Fprintf(&b, "%s", v.elem.genSize(ctx, oid, vid))
 		fmt.Fprint(&b, "}\n")
 	}
-	vn := ctx.tmpVar()
-	fmt.Fprintf(&b, "for _, %s := range %s {\n", vn, obj)
-	fmt.Fprintf(&b, "%s", v.elem.genEncoder(ctx, vn))
+	vid := ctx.tmpVar()
+	fmt.Fprintf(&b, "for _, %s := range %s {\n", vid, obj)
+	fmt.Fprintf(&b, "%s", v.elem.genEncoder(ctx, vid))
 	fmt.Fprint(&b, "}\n")
 	return b.String()
 }
 
-func (v *Vector) genDecoder(ctx *genContext, r string, obj string) string { return "" }
+func (v *sszVector) genDecoder(ctx *genContext, r string, obj string) string {
+	if v.decoder != "" {
+		var (
+			b   bytes.Buffer
+			vid = ctx.tmpVar()
+			eid = ctx.tmpErr()
+		)
+		fmt.Fprintf(&b, "%s, %s, %s := %s(%s)\n", r, vid, eid, ctx.qualifier(pkgPath, v.decoder), r)
+		fmt.Fprintf(&b, "if %s != nil {\n", eid)
+		fmt.Fprintf(&b, "return %s\n", eid)
+		fmt.Fprint(&b, "}\n")
+		fmt.Fprintf(&b, "%s = %s\n", obj, vid)
+		return b.String()
+	}
+	return ""
+}
 
-type List struct {
+type sszList struct {
 	slice   *types.Slice
 	named   *types.Named
 	elem    sszType
 	tag     sizeTag
 	encoder string
+	decoder string
 }
 
-func newList(named *types.Named, slice *types.Slice, tags []sizeTag) (*List, error) {
+func newList(named *types.Named, slice *types.Slice, tags []sizeTag) (*sszList, error) {
 	var (
 		tag    sizeTag
 		remain []sizeTag
@@ -244,38 +268,43 @@ func newList(named *types.Named, slice *types.Slice, tags []sizeTag) (*List, err
 	if err != nil {
 		return nil, err
 	}
-	var encoder string
-	if b, ok := elem.(*Basic); ok {
+	var (
+		encoder string
+		decoder string
+	)
+	if b, ok := elem.(*sszBasic); ok {
 		encoder = fmt.Sprintf("%ss", b.encoder)
+		decoder = fmt.Sprintf("%ss", b.decoder)
 	}
-	return &List{
+	return &sszList{
 		slice:   slice,
 		named:   named,
 		elem:    elem,
 		tag:     tag,
 		encoder: encoder,
+		decoder: decoder,
 	}, nil
 }
 
-func (l *List) fixed() bool {
+func (l *sszList) fixed() bool {
 	if l.tag.size != 0 {
 		return l.elem.fixed()
 	}
 	return false
 }
 
-func (l *List) fixedSize() int {
+func (l *sszList) fixedSize() int {
 	if l.fixed() {
 		return int(l.tag.size) * l.elem.fixedSize()
 	}
 	return ssz.BytesPerLengthOffset
 }
 
-func (l *List) typeName() string {
+func (l *sszList) typeName() string {
 	return l.slice.String()
 }
 
-func (l *List) genSize(ctx *genContext, w string, obj string) string {
+func (l *sszList) genSize(ctx *genContext, w string, obj string) string {
 	if l.elem.fixed() {
 		if l.elem.fixedSize() == 1 {
 			return fmt.Sprintf("%s += len(%s)\n", w, obj)
@@ -283,47 +312,63 @@ func (l *List) genSize(ctx *genContext, w string, obj string) string {
 		return fmt.Sprintf("%s += len(%s)*%d\n", w, obj, l.elem.fixedSize())
 	}
 	var (
-		b  bytes.Buffer
-		vn = ctx.tmpVar()
+		b   bytes.Buffer
+		vid = ctx.tmpVar()
 	)
-	fmt.Fprintf(&b, "for _, %s := range %s {\n", vn, obj)
+	fmt.Fprintf(&b, "for _, %s := range %s {\n", vid, obj)
 	fmt.Fprintf(&b, "%s += 4\n", w)
-	fmt.Fprintf(&b, "%s", l.elem.genSize(ctx, w, vn))
+	fmt.Fprintf(&b, "%s", l.elem.genSize(ctx, w, vid))
 	fmt.Fprint(&b, "}\n")
 	return b.String()
 }
 
-func (l *List) genEncoder(ctx *genContext, obj string) string {
+func (l *sszList) genEncoder(ctx *genContext, obj string) string {
 	if l.encoder != "" {
 		return fmt.Sprintf("%s(w, %s)\n", ctx.qualifier(pkgPath, l.encoder), obj)
 	}
 	var b bytes.Buffer
 	if !l.elem.fixed() {
-		fmt.Fprintf(&b, "_o = len(%s)*4\n", obj)
+		oid := ctx.tmpVar()
+		fmt.Fprintf(&b, "%s := len(%s)*4\n", oid, obj)
 
-		vn := ctx.tmpVar()
-		fmt.Fprintf(&b, "for _, %s := range %s {\n", vn, obj)
-		fmt.Fprintf(&b, "%s(w, uint32(_o))\n", ctx.qualifier(pkgPath, "EncodeUint32"))
-		fmt.Fprintf(&b, "%s", l.elem.genSize(ctx, "_o", vn))
+		vid := ctx.tmpVar()
+		fmt.Fprintf(&b, "for _, %s := range %s {\n", vid, obj)
+		fmt.Fprintf(&b, "%s(w, uint32(%s))\n", ctx.qualifier(pkgPath, "EncodeUint32"), oid)
+		fmt.Fprintf(&b, "%s", l.elem.genSize(ctx, oid, vid))
 		fmt.Fprint(&b, "}\n")
 	}
-	vn := ctx.tmpVar()
-	fmt.Fprintf(&b, "for _, %s := range %s {\n", vn, obj)
-	fmt.Fprintf(&b, "%s", l.elem.genEncoder(ctx, vn))
+	vid := ctx.tmpVar()
+	fmt.Fprintf(&b, "for _, %s := range %s {\n", vid, obj)
+	fmt.Fprintf(&b, "%s", l.elem.genEncoder(ctx, vid))
 	fmt.Fprint(&b, "}\n")
 	return b.String()
 }
 
-func (l *List) genDecoder(ctx *genContext, r string, obj string) string { return "" }
+func (l *sszList) genDecoder(ctx *genContext, r string, obj string) string {
+	if l.decoder != "" {
+		var (
+			b   bytes.Buffer
+			vid = ctx.tmpVar()
+			eid = ctx.tmpErr()
+		)
+		fmt.Fprintf(&b, "%s, %s, %s := %s(%s)\n", r, vid, eid, ctx.qualifier(pkgPath, l.decoder), r)
+		fmt.Fprintf(&b, "if %s != nil {\n", eid)
+		fmt.Fprintf(&b, "return %s\n", eid)
+		fmt.Fprint(&b, "}\n")
+		fmt.Fprintf(&b, "%s = %s\n", obj, vid)
+		return b.String()
+	}
+	return ""
+}
 
-type Struct struct {
+type sszStruct struct {
 	*types.Struct
 	named      *types.Named
 	fields     []sszType
 	fieldNames []string
 }
 
-func newStruct(named *types.Named, typ *types.Struct) (*Struct, error) {
+func newStruct(named *types.Named, typ *types.Struct) (*sszStruct, error) {
 	var (
 		fields     []sszType
 		fieldNames []string
@@ -354,7 +399,7 @@ func newStruct(named *types.Named, typ *types.Struct) (*Struct, error) {
 		fields = append(fields, field)
 		fieldNames = append(fieldNames, f.Name())
 	}
-	return &Struct{
+	return &sszStruct{
 		Struct:     typ,
 		named:      named,
 		fields:     fields,
@@ -362,7 +407,7 @@ func newStruct(named *types.Named, typ *types.Struct) (*Struct, error) {
 	}, nil
 }
 
-func (s *Struct) fixed() bool {
+func (s *sszStruct) fixed() bool {
 	for _, field := range s.fields {
 		if !field.fixed() {
 			return false
@@ -371,7 +416,7 @@ func (s *Struct) fixed() bool {
 	return true
 }
 
-func (s *Struct) fixedSize() int {
+func (s *sszStruct) fixedSize() int {
 	if !s.fixed() {
 		return ssz.BytesPerLengthOffset
 	}
@@ -382,11 +427,11 @@ func (s *Struct) fixedSize() int {
 	return size
 }
 
-func (s *Struct) typeName() string {
+func (s *sszStruct) typeName() string {
 	return s.named.Obj().Name()
 }
 
-func (s *Struct) genSize(ctx *genContext, w string, obj string) string {
+func (s *sszStruct) genSize(ctx *genContext, w string, obj string) string {
 	if !ctx.topType {
 		return fmt.Sprintf("%s += %s.SizeSSZ()\n", w, obj)
 	}
@@ -408,7 +453,7 @@ func (s *Struct) genSize(ctx *genContext, w string, obj string) string {
 	return b.String()
 }
 
-func (s *Struct) genEncoder(ctx *genContext, obj string) string {
+func (s *sszStruct) genEncoder(ctx *genContext, obj string) string {
 	var b bytes.Buffer
 	if !ctx.topType {
 		fmt.Fprintf(&b, "if err := %s.MarshalSSZTo(w); err != nil {\n", obj)
@@ -418,19 +463,21 @@ func (s *Struct) genEncoder(ctx *genContext, obj string) string {
 	}
 	ctx.topType = false
 
+	var oid string
 	if !s.fixed() {
 		var offset int
 		for _, field := range s.fields {
 			offset += field.fixedSize()
 		}
-		fmt.Fprintf(&b, "_o := %d\n", offset)
+		oid = ctx.tmpVar()
+		fmt.Fprintf(&b, "%s := %d\n", oid, offset)
 	}
 	for i, field := range s.fields {
 		if field.fixed() {
 			fmt.Fprintf(&b, "%s", field.genEncoder(ctx, fmt.Sprintf("%s.%s", obj, s.fieldNames[i])))
 		} else {
-			fmt.Fprintf(&b, "%s(w, uint32(_o))\n", ctx.qualifier(pkgPath, "EncodeUint32"))
-			fmt.Fprintf(&b, "%s", field.genSize(ctx, "_o", fmt.Sprintf("%s.%s", obj, s.fieldNames[i])))
+			fmt.Fprintf(&b, "%s(w, uint32(%s))\n", ctx.qualifier(pkgPath, "EncodeUint32"), oid)
+			fmt.Fprintf(&b, "%s", field.genSize(ctx, oid, fmt.Sprintf("%s.%s", obj, s.fieldNames[i])))
 		}
 	}
 	for i, field := range s.fields {
@@ -442,7 +489,7 @@ func (s *Struct) genEncoder(ctx *genContext, obj string) string {
 	return b.String()
 }
 
-func (s *Struct) genDecoder(ctx *genContext, r string, obj string) string {
+func (s *sszStruct) genDecoder(ctx *genContext, r string, obj string) string {
 	var b bytes.Buffer
 	if !ctx.topType {
 		fmt.Fprintf(&b, "if err := %s.UnmarshalSSZ(%s); err != nil {\n", obj, r)
@@ -452,54 +499,70 @@ func (s *Struct) genDecoder(ctx *genContext, r string, obj string) string {
 	}
 	ctx.topType = false
 
+	var (
+		count   int
+		offsets []string
+	)
 	for i, field := range s.fields {
 		if field.fixed() {
 			fmt.Fprintf(&b, "%s", field.genDecoder(ctx, r, fmt.Sprintf("%s.%s", obj, s.fieldNames[i])))
 		} else {
-			// load offset
-			// r = r[offset:]
-			// decode
 			ctx.addImport(pkgPath, "")
-			oname, rname := ctx.tmpVar(), ctx.tmpVar()
-			fmt.Fprintf(&b, "%s := %s(%s)\n", oname, ctx.qualifier(pkgPath, "DecodeUint32"), r)
-			fmt.Fprintf(&b, "%s := %s[%s:]\n", rname, r, oname)
-			fmt.Fprintf(&b, "%s", field.genDecoder(ctx, rname, fmt.Sprintf("%s.%s", obj, s.fieldNames[i])))
+			vid, eid := ctx.tmpVar(), ctx.tmpErr()
+			fmt.Fprintf(&b, "r, %s, %s := %s(%s)\n", vid, eid, ctx.qualifier(pkgPath, "DecodeUint32"), r)
+			fmt.Fprintf(&b, "if %s != nil {\n", eid)
+			fmt.Fprintf(&b, "return %s\n", eid)
+			fmt.Fprint(&b, "}\n")
+			offsets = append(offsets, vid)
 		}
+	}
+	for i, field := range s.fields {
+		if field.fixed() {
+			continue
+		}
+		ctx.addImport(pkgPath, "")
+		rid := ctx.tmpVar()
+		if count == len(offsets)-1 {
+			fmt.Fprintf(&b, "%s := %s[%s:]\n", rid, r, offsets[count])
+		} else {
+			fmt.Fprintf(&b, "%s := %s[%s:%s]\n", rid, r, offsets[count], offsets[count+1])
+		}
+		fmt.Fprintf(&b, "%s", field.genDecoder(ctx, rid, fmt.Sprintf("%s.%s", obj, s.fieldNames[i])))
 	}
 	return b.String()
 }
 
-type Pointer struct {
+type sszPointer struct {
 	*types.Pointer
 	named *types.Named
 	elem  sszType
 }
 
-func newPointer(named *types.Named, typ *types.Pointer, tags []sizeTag) (*Pointer, error) {
+func newPointer(named *types.Named, typ *types.Pointer, tags []sizeTag) (*sszPointer, error) {
 	elem, err := buildType(nil, typ.Elem(), tags)
 	if err != nil {
 		return nil, err
 	}
-	return &Pointer{
+	return &sszPointer{
 		Pointer: typ,
 		named:   named,
 		elem:    elem,
 	}, nil
 }
 
-func (p *Pointer) typeName() string {
+func (p *sszPointer) typeName() string {
 	return fmt.Sprintf("*%s", p.elem.typeName())
 }
 
-func (p *Pointer) fixed() bool {
+func (p *sszPointer) fixed() bool {
 	return p.elem.fixed()
 }
 
-func (p *Pointer) fixedSize() int {
+func (p *sszPointer) fixedSize() int {
 	return p.elem.fixedSize()
 }
 
-func (p *Pointer) genSize(ctx *genContext, w string, obj string) string {
+func (p *sszPointer) genSize(ctx *genContext, w string, obj string) string {
 	var b bytes.Buffer
 	fmt.Fprintf(&b, "if %s == nil {\n", obj)
 	fmt.Fprintf(&b, "%s = new(%s)\n", obj, p.elem.typeName())
@@ -508,7 +571,7 @@ func (p *Pointer) genSize(ctx *genContext, w string, obj string) string {
 	return b.String()
 }
 
-func (p *Pointer) genEncoder(ctx *genContext, obj string) string {
+func (p *sszPointer) genEncoder(ctx *genContext, obj string) string {
 	var b bytes.Buffer
 	fmt.Fprintf(&b, "if %s == nil {\n", obj)
 	fmt.Fprintf(&b, "%s = new(%s)\n", obj, p.elem.typeName())
@@ -517,7 +580,7 @@ func (p *Pointer) genEncoder(ctx *genContext, obj string) string {
 	return b.String()
 }
 
-func (p *Pointer) genDecoder(ctx *genContext, r string, obj string) string {
+func (p *sszPointer) genDecoder(ctx *genContext, r string, obj string) string {
 	var b bytes.Buffer
 	fmt.Fprintf(&b, "if %s == nil {\n", obj)
 	fmt.Fprintf(&b, "%s = new(%s)\n", obj, p.elem.typeName())

@@ -35,7 +35,7 @@ func (ctx *genContext) addImport(path string, alias string) error {
 	if path == ctx.pkg.Path() {
 		return nil
 	}
-	if n, ok := ctx.imports[path]; n != alias && ok {
+	if n, ok := ctx.imports[path]; ok && n != alias {
 		return fmt.Errorf("conflict import %s(alias: %s-%s)", path, n, alias)
 	}
 	ctx.imports[path] = alias
@@ -99,12 +99,12 @@ func generateSSZSize(ctx *genContext, typ sszType) ([]byte, error) {
 	ctx.reset()
 
 	// TODO non-struct types are not supported yet
-	if _, ok := typ.(*Struct); !ok {
+	if _, ok := typ.(*sszStruct); !ok {
 		return nil, nil
 	}
 	fmt.Fprintf(&b, "func (obj *%s) SizeSSZ() int {\n", typ.typeName())
-	fmt.Fprint(&b, typ.genSize(ctx, "size", "obj"))
-	fmt.Fprint(&b, "return size\n")
+	fmt.Fprint(&b, typ.genSize(ctx, "s", "obj"))
+	fmt.Fprint(&b, "return s\n")
 	fmt.Fprintf(&b, "}\n")
 	return b.Bytes(), nil
 }
@@ -114,7 +114,7 @@ func generateEncoder(ctx *genContext, typ sszType) ([]byte, error) {
 	ctx.reset()
 
 	// TODO non-struct types are not supported yet
-	if _, ok := typ.(*Struct); !ok {
+	if _, ok := typ.(*sszStruct); !ok {
 		return nil, nil
 	}
 	// Generate `MarshalSSZTo` binding
@@ -130,7 +130,7 @@ func generateDecoder(ctx *genContext, typ sszType) ([]byte, error) {
 	ctx.reset()
 
 	// TODO non-struct types are not supported yet
-	if _, ok := typ.(*Struct); !ok {
+	if _, ok := typ.(*sszStruct); !ok {
 		return nil, nil
 	}
 	// Generate `UnmarshalSSZ` binding

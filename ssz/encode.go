@@ -36,7 +36,6 @@ func EncodeUint64(dst []byte, i uint64) []byte {
 }
 
 func EncodeBools(dst []byte, input []bool) []byte {
-	dst = grow(dst, len(input))
 	for _, b := range input {
 		if b {
 			dst = append(dst, byte(1))
@@ -47,7 +46,6 @@ func EncodeBools(dst []byte, input []bool) []byte {
 }
 
 func EncodeBytes(dst []byte, b []byte) []byte {
-	dst = grow(dst, len(b))
 	return append(dst, b...)
 }
 

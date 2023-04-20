@@ -67,15 +67,17 @@ type Fork struct {
 	Epoch           uint64 `json:"epoch"`
 }
 
+type SlashedT bool
+
 type Validator struct {
-	Pubkey                     []byte `json:"pubkey" ssz-size:"48"`
-	WithdrawalCredentials      []byte `json:"withdrawal_credentials" ssz-size:"32"`
-	EffectiveBalance           uint64 `json:"effective_balance"`
-	Slashed                    bool   `json:"slashed"`
-	ActivationEligibilityEpoch uint64 `json:"activation_eligibility_epoch"`
-	ActivationEpoch            uint64 `json:"activation_epoch"`
-	ExitEpoch                  uint64 `json:"exit_epoch"`
-	WithdrawableEpoch          uint64 `json:"withdrawable_epoch"`
+	Pubkey                     []byte   `json:"pubkey" ssz-size:"48"`
+	WithdrawalCredentials      []byte   `json:"withdrawal_credentials" ssz-size:"32"`
+	EffectiveBalance           uint64   `json:"effective_balance"`
+	Slashed                    SlashedT `json:"slashed"`
+	ActivationEligibilityEpoch uint64   `json:"activation_eligibility_epoch"`
+	ActivationEpoch            uint64   `json:"activation_epoch"`
+	ExitEpoch                  uint64   `json:"exit_epoch"`
+	WithdrawableEpoch          uint64   `json:"withdrawable_epoch"`
 }
 
 type VoluntaryExit struct {
