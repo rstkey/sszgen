@@ -10,11 +10,15 @@ import (
 )
 
 type sszType interface {
+	// Attributes
 	fixed() bool
 	fixedSize() int
 	typeName() string
+
+	// Operations
 	genSize(ctx *genContext, w string, obj string) string
 	genEncoder(ctx *genContext, obj string) string
+	genDecoder(ctx *genContext, r string, obj string) string
 }
 
 func buildType(named *types.Named, typ types.Type, tags []sizeTag) (sszType, error) {
@@ -53,23 +57,29 @@ type Basic struct {
 	named   *types.Named
 	size    int
 	encoder string
+	decoder string
 }
 
 func newBasic(named *types.Named, typ *types.Basic) (*Basic, error) {
 	var (
 		size    int
 		encoder string
+		decoder string
 		kind    = typ.Kind()
 	)
 	switch {
 	case kind == types.Bool:
 		size = 1
 		encoder = "EncodeBool"
+		decoder = "DecodeBool"
 	case kind == types.Uint8:
+		size = 1
 		encoder = "EncodeByte"
+		decoder = "DecodeByte"
 	case kind > types.Uint8 && kind <= types.Uint64:
 		size = 1 << (kind - types.Uint8)
 		encoder = fmt.Sprintf("EncodeUint%d", size*8)
+		decoder = fmt.Sprintf("DecodeUint%d", size*8)
 	default:
 		return nil, fmt.Errorf("unhandled basic type: %v", typ)
 	}
@@ -78,6 +88,7 @@ func newBasic(named *types.Named, typ *types.Basic) (*Basic, error) {
 		named:   named,
 		size:    size,
 		encoder: encoder,
+		decoder: decoder,
 	}, nil
 }
 
@@ -100,9 +111,24 @@ func (b *Basic) genSize(ctx *genContext, w string, obj string) string {
 func (b *Basic) genEncoder(ctx *genContext, obj string) string {
 	ctx.addImport(pkgPath, "")
 	if b.named != nil {
-		obj = fmt.Sprintf("uint%d(%s)", b.size*8, obj)
+		obj = fmt.Sprintf("%s(%s)", b.basic.String(), obj)
 	}
 	return fmt.Sprintf("%s(w, %s)\n", ctx.qualifier(pkgPath, b.encoder), obj)
+}
+
+func (b *Basic) genDecoder(ctx *genContext, r string, obj string) string {
+	var (
+		vname = ctx.tmpVar()
+		ename = ctx.tmpErr()
+		buf   bytes.Buffer
+	)
+	ctx.addImport(pkgPath, "")
+	fmt.Fprintf(&buf, "%s, %s, %s := %s(%s)\n", r, vname, ename, ctx.qualifier(pkgPath, b.decoder), r)
+	fmt.Fprintf(&buf, "if %s != nil {\n", ename)
+	fmt.Fprintf(&buf, "return %s\n", ename)
+	fmt.Fprint(&buf, "}\n")
+	fmt.Fprintf(&buf, "%s = %s\n", obj, vname)
+	return buf.String()
 }
 
 type Vector struct {
@@ -196,6 +222,8 @@ func (v *Vector) genEncoder(ctx *genContext, obj string) string {
 	return b.String()
 }
 
+func (v *Vector) genDecoder(ctx *genContext, r string, obj string) string { return "" }
+
 type List struct {
 	slice   *types.Slice
 	named   *types.Named
@@ -286,6 +314,8 @@ func (l *List) genEncoder(ctx *genContext, obj string) string {
 	return b.String()
 }
 
+func (l *List) genDecoder(ctx *genContext, r string, obj string) string { return "" }
+
 type Struct struct {
 	*types.Struct
 	named      *types.Named
@@ -352,6 +382,10 @@ func (s *Struct) fixedSize() int {
 	return size
 }
 
+func (s *Struct) typeName() string {
+	return s.named.Obj().Name()
+}
+
 func (s *Struct) genSize(ctx *genContext, w string, obj string) string {
 	if !ctx.topType {
 		return fmt.Sprintf("%s += %s.SizeSSZ()\n", w, obj)
@@ -408,8 +442,31 @@ func (s *Struct) genEncoder(ctx *genContext, obj string) string {
 	return b.String()
 }
 
-func (s *Struct) typeName() string {
-	return s.named.Obj().Name()
+func (s *Struct) genDecoder(ctx *genContext, r string, obj string) string {
+	var b bytes.Buffer
+	if !ctx.topType {
+		fmt.Fprintf(&b, "if err := %s.UnmarshalSSZ(%s); err != nil {\n", obj, r)
+		fmt.Fprint(&b, "return err\n")
+		fmt.Fprint(&b, "}\n")
+		return b.String()
+	}
+	ctx.topType = false
+
+	for i, field := range s.fields {
+		if field.fixed() {
+			fmt.Fprintf(&b, "%s", field.genDecoder(ctx, r, fmt.Sprintf("%s.%s", obj, s.fieldNames[i])))
+		} else {
+			// load offset
+			// r = r[offset:]
+			// decode
+			ctx.addImport(pkgPath, "")
+			oname, rname := ctx.tmpVar(), ctx.tmpVar()
+			fmt.Fprintf(&b, "%s := %s(%s)\n", oname, ctx.qualifier(pkgPath, "DecodeUint32"), r)
+			fmt.Fprintf(&b, "%s := %s[%s:]\n", rname, r, oname)
+			fmt.Fprintf(&b, "%s", field.genDecoder(ctx, rname, fmt.Sprintf("%s.%s", obj, s.fieldNames[i])))
+		}
+	}
+	return b.String()
 }
 
 type Pointer struct {
@@ -457,6 +514,15 @@ func (p *Pointer) genEncoder(ctx *genContext, obj string) string {
 	fmt.Fprintf(&b, "%s = new(%s)\n", obj, p.elem.typeName())
 	fmt.Fprint(&b, "}\n")
 	fmt.Fprintf(&b, "%s", p.elem.genEncoder(ctx, obj))
+	return b.String()
+}
+
+func (p *Pointer) genDecoder(ctx *genContext, r string, obj string) string {
+	var b bytes.Buffer
+	fmt.Fprintf(&b, "if %s == nil {\n", obj)
+	fmt.Fprintf(&b, "%s = new(%s)\n", obj, p.elem.typeName())
+	fmt.Fprint(&b, "}\n")
+	fmt.Fprintf(&b, "%s", p.elem.genDecoder(ctx, r, obj))
 	return b.String()
 }
 

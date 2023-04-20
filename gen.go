@@ -13,7 +13,8 @@ type genContext struct {
 	topType bool
 	pkg     *types.Package
 	imports map[string]string
-	vid     int
+	nvar    int
+	nerr    int
 }
 
 func newGenContext(pkg *types.Package) *genContext {
@@ -76,13 +77,20 @@ func (ctx *genContext) header() []byte {
 }
 
 func (ctx *genContext) tmpVar() string {
-	id := fmt.Sprintf("_v%d", ctx.vid)
-	ctx.vid += 1
+	id := fmt.Sprintf("_v%d", ctx.nvar)
+	ctx.nvar += 1
+	return id
+}
+
+func (ctx *genContext) tmpErr() string {
+	id := fmt.Sprintf("_e%d", ctx.nerr)
+	ctx.nerr += 1
 	return id
 }
 
 func (ctx *genContext) reset() {
-	ctx.vid = 0
+	ctx.nvar = 0
+	ctx.nerr = 0
 	ctx.topType = true
 }
 
@@ -109,10 +117,25 @@ func generateEncoder(ctx *genContext, typ sszType) ([]byte, error) {
 	if _, ok := typ.(*Struct); !ok {
 		return nil, nil
 	}
-
 	// Generate `MarshalSSZTo` binding
 	fmt.Fprintf(&b, "func (obj *%s) MarshalSSZTo(w []byte) error {\n", typ.typeName())
 	fmt.Fprint(&b, typ.genEncoder(ctx, "obj"))
+	fmt.Fprint(&b, "return nil\n")
+	fmt.Fprint(&b, "}\n")
+	return b.Bytes(), nil
+}
+
+func generateDecoder(ctx *genContext, typ sszType) ([]byte, error) {
+	var b bytes.Buffer
+	ctx.reset()
+
+	// TODO non-struct types are not supported yet
+	if _, ok := typ.(*Struct); !ok {
+		return nil, nil
+	}
+	// Generate `UnmarshalSSZ` binding
+	fmt.Fprintf(&b, "func (obj *%s) UnmarshalSSZ(r []byte) error {\n", typ.typeName())
+	fmt.Fprint(&b, typ.genDecoder(ctx, "r", "obj"))
 	fmt.Fprint(&b, "return nil\n")
 	fmt.Fprint(&b, "}\n")
 	return b.Bytes(), nil
@@ -123,6 +146,7 @@ func generate(ctx *genContext, typ sszType) ([]byte, error) {
 	for _, fn := range []func(ctx *genContext, typ sszType) ([]byte, error){
 		generateSSZSize,
 		generateEncoder,
+		generateDecoder,
 	} {
 		code, err := fn(ctx, typ)
 		if err != nil {

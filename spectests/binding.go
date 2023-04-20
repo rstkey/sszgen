@@ -8,7 +8,7 @@ package spectests
 import "github.com/rjl493456442/sszgen/ssz"
 
 func (obj *AggregateAndProof) SizeSSZ() int {
-	size := 12
+	size := 108
 	if obj.Aggregate == nil {
 		obj.Aggregate = new(Attestation)
 	}
@@ -17,7 +17,7 @@ func (obj *AggregateAndProof) SizeSSZ() int {
 }
 
 func (obj *AggregateAndProof) MarshalSSZTo(w []byte) error {
-	_o := 12
+	_o := 108
 	ssz.EncodeUint64(w, obj.Index)
 	ssz.EncodeUint32(w, uint32(_o))
 	if obj.Aggregate == nil {
@@ -34,16 +34,33 @@ func (obj *AggregateAndProof) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *AggregateAndProof) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.Index = _v0
+	_v1 := ssz.DecodeUint32(r)
+	_v2 := r[_v1:]
+	if obj.Aggregate == nil {
+		obj.Aggregate = new(Attestation)
+	}
+	if err := obj.Aggregate.UnmarshalSSZ(_v2); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *Attestation) SizeSSZ() int {
-	size := 36
-	size += len(obj.AggregationBits) * 0
+	size := 228
+	size += len(obj.AggregationBits)
 	return size
 }
 
 func (obj *Attestation) MarshalSSZTo(w []byte) error {
-	_o := 36
+	_o := 228
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.AggregationBits) * 0
+	_o += len(obj.AggregationBits)
 	if obj.Data == nil {
 		obj.Data = new(AttestationData)
 	}
@@ -55,8 +72,20 @@ func (obj *Attestation) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *Attestation) UnmarshalSSZ(r []byte) error {
+	_v0 := ssz.DecodeUint32(r)
+	_v1 := r[_v0:]
+	if obj.Data == nil {
+		obj.Data = new(AttestationData)
+	}
+	if err := obj.Data.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *AttestationData) SizeSSZ() int {
-	size := 32
+	size := 128
 	return size
 }
 
@@ -74,6 +103,32 @@ func (obj *AttestationData) MarshalSSZTo(w []byte) error {
 		obj.Target = new(Checkpoint)
 	}
 	if err := obj.Target.MarshalSSZTo(w); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *AttestationData) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.Slot = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.Index = _v1
+	if obj.Source == nil {
+		obj.Source = new(Checkpoint)
+	}
+	if err := obj.Source.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.Target == nil {
+		obj.Target = new(Checkpoint)
+	}
+	if err := obj.Target.UnmarshalSSZ(r); err != nil {
 		return err
 	}
 	return nil
@@ -119,8 +174,28 @@ func (obj *AttesterSlashing) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *AttesterSlashing) UnmarshalSSZ(r []byte) error {
+	_v0 := ssz.DecodeUint32(r)
+	_v1 := r[_v0:]
+	if obj.Attestation1 == nil {
+		obj.Attestation1 = new(IndexedAttestation)
+	}
+	if err := obj.Attestation1.UnmarshalSSZ(_v1); err != nil {
+		return err
+	}
+	_v2 := ssz.DecodeUint32(r)
+	_v3 := r[_v2:]
+	if obj.Attestation2 == nil {
+		obj.Attestation2 = new(IndexedAttestation)
+	}
+	if err := obj.Attestation2.UnmarshalSSZ(_v3); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *BLSToExecutionChange) SizeSSZ() int {
-	size := 8
+	size := 76
 	return size
 }
 
@@ -131,8 +206,17 @@ func (obj *BLSToExecutionChange) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *BLSToExecutionChange) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.ValidatorIndex = _v0
+	return nil
+}
+
 func (obj *BeaconBlock) SizeSSZ() int {
-	size := 20
+	size := 84
 	if obj.Body == nil {
 		obj.Body = new(BeaconBlockBodyPhase0)
 	}
@@ -141,7 +225,7 @@ func (obj *BeaconBlock) SizeSSZ() int {
 }
 
 func (obj *BeaconBlock) MarshalSSZTo(w []byte) error {
-	_o := 20
+	_o := 84
 	ssz.EncodeUint64(w, obj.Slot)
 	ssz.EncodeUint64(w, obj.ProposerIndex)
 	ssz.EncodeBytes(w, obj.ParentRoot)
@@ -160,9 +244,31 @@ func (obj *BeaconBlock) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *BeaconBlock) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.Slot = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.ProposerIndex = _v1
+	_v2 := ssz.DecodeUint32(r)
+	_v3 := r[_v2:]
+	if obj.Body == nil {
+		obj.Body = new(BeaconBlockBodyPhase0)
+	}
+	if err := obj.Body.UnmarshalSSZ(_v3); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *BeaconBlockBodyAltair) SizeSSZ() int {
-	size := 28
-	size += len(obj.ProposerSlashings) * 32
+	size := 380
+	size += len(obj.ProposerSlashings) * 416
 	for _, _v0 := range obj.AttesterSlashings {
 		size += 4
 		if _v0 == nil {
@@ -177,13 +283,13 @@ func (obj *BeaconBlockBodyAltair) SizeSSZ() int {
 		}
 		size += _v1.SizeSSZ()
 	}
-	size += len(obj.Deposits) * 8
-	size += len(obj.VoluntaryExits) * 16
+	size += len(obj.Deposits) * 1240
+	size += len(obj.VoluntaryExits) * 112
 	return size
 }
 
 func (obj *BeaconBlockBodyAltair) MarshalSSZTo(w []byte) error {
-	_o := 28
+	_o := 380
 	ssz.EncodeBytes(w, obj.RandaoReveal)
 	if obj.Eth1Data == nil {
 		obj.Eth1Data = new(Eth1Data)
@@ -193,7 +299,7 @@ func (obj *BeaconBlockBodyAltair) MarshalSSZTo(w []byte) error {
 	}
 	ssz.EncodeBytes(w, obj.Graffiti[:])
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.ProposerSlashings) * 32
+	_o += len(obj.ProposerSlashings) * 416
 	ssz.EncodeUint32(w, uint32(_o))
 	for _, _v0 := range obj.AttesterSlashings {
 		_o += 4
@@ -211,9 +317,9 @@ func (obj *BeaconBlockBodyAltair) MarshalSSZTo(w []byte) error {
 		_o += _v1.SizeSSZ()
 	}
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.Deposits) * 8
+	_o += len(obj.Deposits) * 1240
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.VoluntaryExits) * 16
+	_o += len(obj.VoluntaryExits) * 112
 	if obj.SyncAggregate == nil {
 		obj.SyncAggregate = new(SyncAggregate)
 	}
@@ -279,6 +385,32 @@ func (obj *BeaconBlockBodyAltair) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *BeaconBlockBodyAltair) UnmarshalSSZ(r []byte) error {
+	if obj.Eth1Data == nil {
+		obj.Eth1Data = new(Eth1Data)
+	}
+	if err := obj.Eth1Data.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v0 := ssz.DecodeUint32(r)
+	_v1 := r[_v0:]
+	_v2 := ssz.DecodeUint32(r)
+	_v3 := r[_v2:]
+	_v4 := ssz.DecodeUint32(r)
+	_v5 := r[_v4:]
+	_v6 := ssz.DecodeUint32(r)
+	_v7 := r[_v6:]
+	_v8 := ssz.DecodeUint32(r)
+	_v9 := r[_v8:]
+	if obj.SyncAggregate == nil {
+		obj.SyncAggregate = new(SyncAggregate)
+	}
+	if err := obj.SyncAggregate.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *BeaconBlockBodyBellatrix) SizeSSZ() int {
 	size := 8
 	size += obj.BeaconBlockBodyAltair.SizeSSZ()
@@ -310,9 +442,26 @@ func (obj *BeaconBlockBodyBellatrix) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *BeaconBlockBodyBellatrix) UnmarshalSSZ(r []byte) error {
+	_v0 := ssz.DecodeUint32(r)
+	_v1 := r[_v0:]
+	if err := obj.BeaconBlockBodyAltair.UnmarshalSSZ(_v1); err != nil {
+		return err
+	}
+	_v2 := ssz.DecodeUint32(r)
+	_v3 := r[_v2:]
+	if obj.ExecutionPayload == nil {
+		obj.ExecutionPayload = new(ExecutionPayload)
+	}
+	if err := obj.ExecutionPayload.UnmarshalSSZ(_v3); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *BeaconBlockBodyCapella) SizeSSZ() int {
-	size := 36
-	size += len(obj.ProposerSlashings) * 32
+	size := 388
+	size += len(obj.ProposerSlashings) * 416
 	for _, _v0 := range obj.AttesterSlashings {
 		size += 4
 		if _v0 == nil {
@@ -327,18 +476,18 @@ func (obj *BeaconBlockBodyCapella) SizeSSZ() int {
 		}
 		size += _v1.SizeSSZ()
 	}
-	size += len(obj.Deposits) * 8
-	size += len(obj.VoluntaryExits) * 16
+	size += len(obj.Deposits) * 1240
+	size += len(obj.VoluntaryExits) * 112
 	if obj.ExecutionPayload == nil {
 		obj.ExecutionPayload = new(ExecutionPayloadCapella)
 	}
 	size += obj.ExecutionPayload.SizeSSZ()
-	size += len(obj.BlsToExecutionChanges) * 8
+	size += len(obj.BlsToExecutionChanges) * 172
 	return size
 }
 
 func (obj *BeaconBlockBodyCapella) MarshalSSZTo(w []byte) error {
-	_o := 36
+	_o := 388
 	ssz.EncodeBytes(w, obj.RandaoReveal)
 	if obj.Eth1Data == nil {
 		obj.Eth1Data = new(Eth1Data)
@@ -348,7 +497,7 @@ func (obj *BeaconBlockBodyCapella) MarshalSSZTo(w []byte) error {
 	}
 	ssz.EncodeBytes(w, obj.Graffiti[:])
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.ProposerSlashings) * 32
+	_o += len(obj.ProposerSlashings) * 416
 	ssz.EncodeUint32(w, uint32(_o))
 	for _, _v0 := range obj.AttesterSlashings {
 		_o += 4
@@ -366,9 +515,9 @@ func (obj *BeaconBlockBodyCapella) MarshalSSZTo(w []byte) error {
 		_o += _v1.SizeSSZ()
 	}
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.Deposits) * 8
+	_o += len(obj.Deposits) * 1240
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.VoluntaryExits) * 16
+	_o += len(obj.VoluntaryExits) * 112
 	if obj.SyncAggregate == nil {
 		obj.SyncAggregate = new(SyncAggregate)
 	}
@@ -381,7 +530,7 @@ func (obj *BeaconBlockBodyCapella) MarshalSSZTo(w []byte) error {
 	}
 	_o += obj.ExecutionPayload.SizeSSZ()
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.BlsToExecutionChanges) * 8
+	_o += len(obj.BlsToExecutionChanges) * 172
 	for _, _v2 := range obj.ProposerSlashings {
 		if _v2 == nil {
 			_v2 = new(ProposerSlashing)
@@ -455,9 +604,45 @@ func (obj *BeaconBlockBodyCapella) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *BeaconBlockBodyCapella) UnmarshalSSZ(r []byte) error {
+	if obj.Eth1Data == nil {
+		obj.Eth1Data = new(Eth1Data)
+	}
+	if err := obj.Eth1Data.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v0 := ssz.DecodeUint32(r)
+	_v1 := r[_v0:]
+	_v2 := ssz.DecodeUint32(r)
+	_v3 := r[_v2:]
+	_v4 := ssz.DecodeUint32(r)
+	_v5 := r[_v4:]
+	_v6 := ssz.DecodeUint32(r)
+	_v7 := r[_v6:]
+	_v8 := ssz.DecodeUint32(r)
+	_v9 := r[_v8:]
+	if obj.SyncAggregate == nil {
+		obj.SyncAggregate = new(SyncAggregate)
+	}
+	if err := obj.SyncAggregate.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v10 := ssz.DecodeUint32(r)
+	_v11 := r[_v10:]
+	if obj.ExecutionPayload == nil {
+		obj.ExecutionPayload = new(ExecutionPayloadCapella)
+	}
+	if err := obj.ExecutionPayload.UnmarshalSSZ(_v11); err != nil {
+		return err
+	}
+	_v12 := ssz.DecodeUint32(r)
+	_v13 := r[_v12:]
+	return nil
+}
+
 func (obj *BeaconBlockBodyPhase0) SizeSSZ() int {
-	size := 28
-	size += len(obj.ProposerSlashings) * 32
+	size := 220
+	size += len(obj.ProposerSlashings) * 416
 	for _, _v0 := range obj.AttesterSlashings {
 		size += 4
 		if _v0 == nil {
@@ -472,13 +657,13 @@ func (obj *BeaconBlockBodyPhase0) SizeSSZ() int {
 		}
 		size += _v1.SizeSSZ()
 	}
-	size += len(obj.Deposits) * 8
-	size += len(obj.VoluntaryExits) * 16
+	size += len(obj.Deposits) * 1240
+	size += len(obj.VoluntaryExits) * 112
 	return size
 }
 
 func (obj *BeaconBlockBodyPhase0) MarshalSSZTo(w []byte) error {
-	_o := 28
+	_o := 220
 	ssz.EncodeBytes(w, obj.RandaoReveal)
 	if obj.Eth1Data == nil {
 		obj.Eth1Data = new(Eth1Data)
@@ -488,7 +673,7 @@ func (obj *BeaconBlockBodyPhase0) MarshalSSZTo(w []byte) error {
 	}
 	ssz.EncodeBytes(w, obj.Graffiti[:])
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.ProposerSlashings) * 32
+	_o += len(obj.ProposerSlashings) * 416
 	ssz.EncodeUint32(w, uint32(_o))
 	for _, _v0 := range obj.AttesterSlashings {
 		_o += 4
@@ -506,9 +691,9 @@ func (obj *BeaconBlockBodyPhase0) MarshalSSZTo(w []byte) error {
 		_o += _v1.SizeSSZ()
 	}
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.Deposits) * 8
+	_o += len(obj.Deposits) * 1240
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.VoluntaryExits) * 16
+	_o += len(obj.VoluntaryExits) * 112
 	for _, _v2 := range obj.ProposerSlashings {
 		if _v2 == nil {
 			_v2 = new(ProposerSlashing)
@@ -568,8 +753,28 @@ func (obj *BeaconBlockBodyPhase0) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *BeaconBlockBodyPhase0) UnmarshalSSZ(r []byte) error {
+	if obj.Eth1Data == nil {
+		obj.Eth1Data = new(Eth1Data)
+	}
+	if err := obj.Eth1Data.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v0 := ssz.DecodeUint32(r)
+	_v1 := r[_v0:]
+	_v2 := ssz.DecodeUint32(r)
+	_v3 := r[_v2:]
+	_v4 := ssz.DecodeUint32(r)
+	_v5 := r[_v4:]
+	_v6 := ssz.DecodeUint32(r)
+	_v7 := r[_v6:]
+	_v8 := ssz.DecodeUint32(r)
+	_v9 := r[_v8:]
+	return nil
+}
+
 func (obj *BeaconBlockCapella) SizeSSZ() int {
-	size := 20
+	size := 84
 	if obj.Body == nil {
 		obj.Body = new(BeaconBlockBodyCapella)
 	}
@@ -578,7 +783,7 @@ func (obj *BeaconBlockCapella) SizeSSZ() int {
 }
 
 func (obj *BeaconBlockCapella) MarshalSSZTo(w []byte) error {
-	_o := 20
+	_o := 84
 	ssz.EncodeUint64(w, obj.Slot)
 	ssz.EncodeUint64(w, obj.ProposerIndex)
 	ssz.EncodeBytes(w, obj.ParentRoot[:])
@@ -597,8 +802,30 @@ func (obj *BeaconBlockCapella) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *BeaconBlockCapella) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.Slot = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.ProposerIndex = _v1
+	_v2 := ssz.DecodeUint32(r)
+	_v3 := r[_v2:]
+	if obj.Body == nil {
+		obj.Body = new(BeaconBlockBodyCapella)
+	}
+	if err := obj.Body.UnmarshalSSZ(_v3); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *BeaconBlockHeader) SizeSSZ() int {
-	size := 16
+	size := 112
 	return size
 }
 
@@ -611,11 +838,25 @@ func (obj *BeaconBlockHeader) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *BeaconBlockHeader) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.Slot = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.ProposerIndex = _v1
+	return nil
+}
+
 func (obj *BeaconState) SizeSSZ() int {
-	size := 65640
-	size += len(obj.HistoricalRoots) * 0
-	size += len(obj.Eth1DataVotes) * 8
-	size += len(obj.Validators) * 41
+	size := 2687377
+	size += len(obj.HistoricalRoots) * 32
+	size += len(obj.Eth1DataVotes) * 72
+	size += len(obj.Validators) * 121
 	size += len(obj.Balances) * 8
 	for _, _v0 := range obj.PreviousEpochAttestations {
 		size += 4
@@ -635,7 +876,7 @@ func (obj *BeaconState) SizeSSZ() int {
 }
 
 func (obj *BeaconState) MarshalSSZTo(w []byte) error {
-	_o := 65640
+	_o := 2687377
 	ssz.EncodeUint64(w, obj.GenesisTime)
 	ssz.EncodeBytes(w, obj.GenesisValidatorsRoot)
 	ssz.EncodeUint64(w, obj.Slot)
@@ -658,7 +899,7 @@ func (obj *BeaconState) MarshalSSZTo(w []byte) error {
 		ssz.EncodeBytes(w, _v1)
 	}
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.HistoricalRoots) * 0
+	_o += len(obj.HistoricalRoots) * 32
 	if obj.Eth1Data == nil {
 		obj.Eth1Data = new(Eth1Data)
 	}
@@ -666,10 +907,10 @@ func (obj *BeaconState) MarshalSSZTo(w []byte) error {
 		return err
 	}
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.Eth1DataVotes) * 8
+	_o += len(obj.Eth1DataVotes) * 72
 	ssz.EncodeUint64(w, obj.Eth1DepositIndex)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.Validators) * 41
+	_o += len(obj.Validators) * 121
 	ssz.EncodeUint32(w, uint32(_o))
 	_o += len(obj.Balances) * 8
 	for _, _v2 := range obj.RandaoMixes {
@@ -766,20 +1007,87 @@ func (obj *BeaconState) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *BeaconState) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.GenesisTime = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.Slot = _v1
+	if obj.Fork == nil {
+		obj.Fork = new(Fork)
+	}
+	if err := obj.Fork.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.LatestBlockHeader == nil {
+		obj.LatestBlockHeader = new(BeaconBlockHeader)
+	}
+	if err := obj.LatestBlockHeader.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v2 := ssz.DecodeUint32(r)
+	_v3 := r[_v2:]
+	if obj.Eth1Data == nil {
+		obj.Eth1Data = new(Eth1Data)
+	}
+	if err := obj.Eth1Data.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v4 := ssz.DecodeUint32(r)
+	_v5 := r[_v4:]
+	r, _v6, _e2 := ssz.DecodeUint64(r)
+	if _e2 != nil {
+		return _e2
+	}
+	obj.Eth1DepositIndex = _v6
+	_v7 := ssz.DecodeUint32(r)
+	_v8 := r[_v7:]
+	_v9 := ssz.DecodeUint32(r)
+	_v10 := r[_v9:]
+	_v11 := ssz.DecodeUint32(r)
+	_v12 := r[_v11:]
+	_v13 := ssz.DecodeUint32(r)
+	_v14 := r[_v13:]
+	if obj.PreviousJustifiedCheckpoint == nil {
+		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
+	}
+	if err := obj.PreviousJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.CurrentJustifiedCheckpoint == nil {
+		obj.CurrentJustifiedCheckpoint = new(Checkpoint)
+	}
+	if err := obj.CurrentJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.FinalizedCheckpoint == nil {
+		obj.FinalizedCheckpoint = new(Checkpoint)
+	}
+	if err := obj.FinalizedCheckpoint.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *BeaconStateAltair) SizeSSZ() int {
-	size := 65644
-	size += len(obj.HistoricalRoots) * 0
-	size += len(obj.Eth1DataVotes) * 8
-	size += len(obj.Validators) * 41
+	size := 2736629
+	size += len(obj.HistoricalRoots) * 32
+	size += len(obj.Eth1DataVotes) * 72
+	size += len(obj.Validators) * 121
 	size += len(obj.Balances) * 8
-	size += len(obj.PreviousEpochParticipation) * 0
-	size += len(obj.CurrentEpochParticipation) * 0
+	size += len(obj.PreviousEpochParticipation)
+	size += len(obj.CurrentEpochParticipation)
 	size += len(obj.InactivityScores) * 8
 	return size
 }
 
 func (obj *BeaconStateAltair) MarshalSSZTo(w []byte) error {
-	_o := 65644
+	_o := 2736629
 	ssz.EncodeUint64(w, obj.GenesisTime)
 	ssz.EncodeBytes(w, obj.GenesisValidatorsRoot)
 	ssz.EncodeUint64(w, obj.Slot)
@@ -802,7 +1110,7 @@ func (obj *BeaconStateAltair) MarshalSSZTo(w []byte) error {
 		ssz.EncodeBytes(w, _v1)
 	}
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.HistoricalRoots) * 0
+	_o += len(obj.HistoricalRoots) * 32
 	if obj.Eth1Data == nil {
 		obj.Eth1Data = new(Eth1Data)
 	}
@@ -810,10 +1118,10 @@ func (obj *BeaconStateAltair) MarshalSSZTo(w []byte) error {
 		return err
 	}
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.Eth1DataVotes) * 8
+	_o += len(obj.Eth1DataVotes) * 72
 	ssz.EncodeUint64(w, obj.Eth1DepositIndex)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.Validators) * 41
+	_o += len(obj.Validators) * 121
 	ssz.EncodeUint32(w, uint32(_o))
 	_o += len(obj.Balances) * 8
 	for _, _v2 := range obj.RandaoMixes {
@@ -821,9 +1129,9 @@ func (obj *BeaconStateAltair) MarshalSSZTo(w []byte) error {
 	}
 	ssz.EncodeUint64s(w, obj.Slashings)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.PreviousEpochParticipation) * 0
+	_o += len(obj.PreviousEpochParticipation)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.CurrentEpochParticipation) * 0
+	_o += len(obj.CurrentEpochParticipation)
 	ssz.EncodeBytes(w, obj.JustificationBits)
 	if obj.PreviousJustifiedCheckpoint == nil {
 		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
@@ -883,14 +1191,95 @@ func (obj *BeaconStateAltair) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *BeaconStateAltair) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.GenesisTime = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.Slot = _v1
+	if obj.Fork == nil {
+		obj.Fork = new(Fork)
+	}
+	if err := obj.Fork.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.LatestBlockHeader == nil {
+		obj.LatestBlockHeader = new(BeaconBlockHeader)
+	}
+	if err := obj.LatestBlockHeader.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v2 := ssz.DecodeUint32(r)
+	_v3 := r[_v2:]
+	if obj.Eth1Data == nil {
+		obj.Eth1Data = new(Eth1Data)
+	}
+	if err := obj.Eth1Data.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v4 := ssz.DecodeUint32(r)
+	_v5 := r[_v4:]
+	r, _v6, _e2 := ssz.DecodeUint64(r)
+	if _e2 != nil {
+		return _e2
+	}
+	obj.Eth1DepositIndex = _v6
+	_v7 := ssz.DecodeUint32(r)
+	_v8 := r[_v7:]
+	_v9 := ssz.DecodeUint32(r)
+	_v10 := r[_v9:]
+	_v11 := ssz.DecodeUint32(r)
+	_v12 := r[_v11:]
+	_v13 := ssz.DecodeUint32(r)
+	_v14 := r[_v13:]
+	if obj.PreviousJustifiedCheckpoint == nil {
+		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
+	}
+	if err := obj.PreviousJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.CurrentJustifiedCheckpoint == nil {
+		obj.CurrentJustifiedCheckpoint = new(Checkpoint)
+	}
+	if err := obj.CurrentJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.FinalizedCheckpoint == nil {
+		obj.FinalizedCheckpoint = new(Checkpoint)
+	}
+	if err := obj.FinalizedCheckpoint.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v15 := ssz.DecodeUint32(r)
+	_v16 := r[_v15:]
+	if obj.CurrentSyncCommittee == nil {
+		obj.CurrentSyncCommittee = new(SyncCommittee)
+	}
+	if err := obj.CurrentSyncCommittee.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.NextSyncCommittee == nil {
+		obj.NextSyncCommittee = new(SyncCommittee)
+	}
+	if err := obj.NextSyncCommittee.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *BeaconStateBellatrix) SizeSSZ() int {
-	size := 65648
-	size += len(obj.HistoricalRoots) * 0
-	size += len(obj.Eth1DataVotes) * 8
-	size += len(obj.Validators) * 41
+	size := 2736633
+	size += len(obj.HistoricalRoots) * 32
+	size += len(obj.Eth1DataVotes) * 72
+	size += len(obj.Validators) * 121
 	size += len(obj.Balances) * 8
-	size += len(obj.PreviousEpochParticipation) * 0
-	size += len(obj.CurrentEpochParticipation) * 0
+	size += len(obj.PreviousEpochParticipation)
+	size += len(obj.CurrentEpochParticipation)
 	size += len(obj.InactivityScores) * 8
 	if obj.LatestExecutionPayloadHeader == nil {
 		obj.LatestExecutionPayloadHeader = new(ExecutionPayloadHeader)
@@ -900,7 +1289,7 @@ func (obj *BeaconStateBellatrix) SizeSSZ() int {
 }
 
 func (obj *BeaconStateBellatrix) MarshalSSZTo(w []byte) error {
-	_o := 65648
+	_o := 2736633
 	ssz.EncodeUint64(w, obj.GenesisTime)
 	ssz.EncodeBytes(w, obj.GenesisValidatorsRoot)
 	ssz.EncodeUint64(w, obj.Slot)
@@ -923,7 +1312,7 @@ func (obj *BeaconStateBellatrix) MarshalSSZTo(w []byte) error {
 		ssz.EncodeBytes(w, _v1)
 	}
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.HistoricalRoots) * 0
+	_o += len(obj.HistoricalRoots) * 32
 	if obj.Eth1Data == nil {
 		obj.Eth1Data = new(Eth1Data)
 	}
@@ -931,10 +1320,10 @@ func (obj *BeaconStateBellatrix) MarshalSSZTo(w []byte) error {
 		return err
 	}
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.Eth1DataVotes) * 8
+	_o += len(obj.Eth1DataVotes) * 72
 	ssz.EncodeUint64(w, obj.Eth1DepositIndex)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.Validators) * 41
+	_o += len(obj.Validators) * 121
 	ssz.EncodeUint32(w, uint32(_o))
 	_o += len(obj.Balances) * 8
 	for _, _v2 := range obj.RandaoMixes {
@@ -942,9 +1331,9 @@ func (obj *BeaconStateBellatrix) MarshalSSZTo(w []byte) error {
 	}
 	ssz.EncodeUint64s(w, obj.Slashings)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.PreviousEpochParticipation) * 0
+	_o += len(obj.PreviousEpochParticipation)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.CurrentEpochParticipation) * 0
+	_o += len(obj.CurrentEpochParticipation)
 	ssz.EncodeBytes(w, obj.JustificationBits)
 	if obj.PreviousJustifiedCheckpoint == nil {
 		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
@@ -1015,25 +1404,114 @@ func (obj *BeaconStateBellatrix) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *BeaconStateBellatrix) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.GenesisTime = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.Slot = _v1
+	if obj.Fork == nil {
+		obj.Fork = new(Fork)
+	}
+	if err := obj.Fork.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.LatestBlockHeader == nil {
+		obj.LatestBlockHeader = new(BeaconBlockHeader)
+	}
+	if err := obj.LatestBlockHeader.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v2 := ssz.DecodeUint32(r)
+	_v3 := r[_v2:]
+	if obj.Eth1Data == nil {
+		obj.Eth1Data = new(Eth1Data)
+	}
+	if err := obj.Eth1Data.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v4 := ssz.DecodeUint32(r)
+	_v5 := r[_v4:]
+	r, _v6, _e2 := ssz.DecodeUint64(r)
+	if _e2 != nil {
+		return _e2
+	}
+	obj.Eth1DepositIndex = _v6
+	_v7 := ssz.DecodeUint32(r)
+	_v8 := r[_v7:]
+	_v9 := ssz.DecodeUint32(r)
+	_v10 := r[_v9:]
+	_v11 := ssz.DecodeUint32(r)
+	_v12 := r[_v11:]
+	_v13 := ssz.DecodeUint32(r)
+	_v14 := r[_v13:]
+	if obj.PreviousJustifiedCheckpoint == nil {
+		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
+	}
+	if err := obj.PreviousJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.CurrentJustifiedCheckpoint == nil {
+		obj.CurrentJustifiedCheckpoint = new(Checkpoint)
+	}
+	if err := obj.CurrentJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.FinalizedCheckpoint == nil {
+		obj.FinalizedCheckpoint = new(Checkpoint)
+	}
+	if err := obj.FinalizedCheckpoint.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v15 := ssz.DecodeUint32(r)
+	_v16 := r[_v15:]
+	if obj.CurrentSyncCommittee == nil {
+		obj.CurrentSyncCommittee = new(SyncCommittee)
+	}
+	if err := obj.CurrentSyncCommittee.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.NextSyncCommittee == nil {
+		obj.NextSyncCommittee = new(SyncCommittee)
+	}
+	if err := obj.NextSyncCommittee.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v17 := ssz.DecodeUint32(r)
+	_v18 := r[_v17:]
+	if obj.LatestExecutionPayloadHeader == nil {
+		obj.LatestExecutionPayloadHeader = new(ExecutionPayloadHeader)
+	}
+	if err := obj.LatestExecutionPayloadHeader.UnmarshalSSZ(_v18); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *BeaconStateCapella) SizeSSZ() int {
-	size := 65668
-	size += len(obj.HistoricalRoots) * 0
-	size += len(obj.Eth1DataVotes) * 8
-	size += len(obj.Validators) * 41
+	size := 2736653
+	size += len(obj.HistoricalRoots) * 32
+	size += len(obj.Eth1DataVotes) * 72
+	size += len(obj.Validators) * 121
 	size += len(obj.Balances) * 8
-	size += len(obj.PreviousEpochParticipation) * 0
-	size += len(obj.CurrentEpochParticipation) * 0
+	size += len(obj.PreviousEpochParticipation)
+	size += len(obj.CurrentEpochParticipation)
 	size += len(obj.InactivityScores) * 8
 	if obj.LatestExecutionPayloadHeader == nil {
 		obj.LatestExecutionPayloadHeader = new(ExecutionPayloadHeaderCapella)
 	}
 	size += obj.LatestExecutionPayloadHeader.SizeSSZ()
-	size += len(obj.HistoricalSummaries) * 0
+	size += len(obj.HistoricalSummaries) * 64
 	return size
 }
 
 func (obj *BeaconStateCapella) MarshalSSZTo(w []byte) error {
-	_o := 65668
+	_o := 2736653
 	ssz.EncodeUint64(w, obj.GenesisTime)
 	ssz.EncodeBytes(w, obj.GenesisValidatorsRoot[:])
 	ssz.EncodeUint64(w, obj.Slot)
@@ -1056,7 +1534,7 @@ func (obj *BeaconStateCapella) MarshalSSZTo(w []byte) error {
 		ssz.EncodeBytes(w, _v1[:])
 	}
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.HistoricalRoots) * 0
+	_o += len(obj.HistoricalRoots) * 32
 	if obj.Eth1Data == nil {
 		obj.Eth1Data = new(Eth1Data)
 	}
@@ -1064,10 +1542,10 @@ func (obj *BeaconStateCapella) MarshalSSZTo(w []byte) error {
 		return err
 	}
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.Eth1DataVotes) * 8
+	_o += len(obj.Eth1DataVotes) * 72
 	ssz.EncodeUint64(w, obj.Eth1DepositIndex)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.Validators) * 41
+	_o += len(obj.Validators) * 121
 	ssz.EncodeUint32(w, uint32(_o))
 	_o += len(obj.Balances) * 8
 	for _, _v2 := range obj.RandaoMixes {
@@ -1075,9 +1553,9 @@ func (obj *BeaconStateCapella) MarshalSSZTo(w []byte) error {
 	}
 	ssz.EncodeUint64s(w, obj.Slashings)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.PreviousEpochParticipation) * 0
+	_o += len(obj.PreviousEpochParticipation)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.CurrentEpochParticipation) * 0
+	_o += len(obj.CurrentEpochParticipation)
 	ssz.EncodeBytes(w, obj.JustificationBits[:])
 	if obj.PreviousJustifiedCheckpoint == nil {
 		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
@@ -1119,7 +1597,7 @@ func (obj *BeaconStateCapella) MarshalSSZTo(w []byte) error {
 	ssz.EncodeUint64(w, obj.NextWithdrawalIndex)
 	ssz.EncodeUint64(w, obj.NextWithdrawalValidatorIndex)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.HistoricalSummaries) * 0
+	_o += len(obj.HistoricalSummaries) * 64
 	for _, _v3 := range obj.HistoricalRoots {
 		ssz.EncodeBytes(w, _v3)
 	}
@@ -1160,8 +1638,109 @@ func (obj *BeaconStateCapella) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *BeaconStateCapella) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.GenesisTime = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.Slot = _v1
+	if obj.Fork == nil {
+		obj.Fork = new(Fork)
+	}
+	if err := obj.Fork.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.LatestBlockHeader == nil {
+		obj.LatestBlockHeader = new(BeaconBlockHeader)
+	}
+	if err := obj.LatestBlockHeader.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v2 := ssz.DecodeUint32(r)
+	_v3 := r[_v2:]
+	if obj.Eth1Data == nil {
+		obj.Eth1Data = new(Eth1Data)
+	}
+	if err := obj.Eth1Data.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v4 := ssz.DecodeUint32(r)
+	_v5 := r[_v4:]
+	r, _v6, _e2 := ssz.DecodeUint64(r)
+	if _e2 != nil {
+		return _e2
+	}
+	obj.Eth1DepositIndex = _v6
+	_v7 := ssz.DecodeUint32(r)
+	_v8 := r[_v7:]
+	_v9 := ssz.DecodeUint32(r)
+	_v10 := r[_v9:]
+	_v11 := ssz.DecodeUint32(r)
+	_v12 := r[_v11:]
+	_v13 := ssz.DecodeUint32(r)
+	_v14 := r[_v13:]
+	if obj.PreviousJustifiedCheckpoint == nil {
+		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
+	}
+	if err := obj.PreviousJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.CurrentJustifiedCheckpoint == nil {
+		obj.CurrentJustifiedCheckpoint = new(Checkpoint)
+	}
+	if err := obj.CurrentJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.FinalizedCheckpoint == nil {
+		obj.FinalizedCheckpoint = new(Checkpoint)
+	}
+	if err := obj.FinalizedCheckpoint.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v15 := ssz.DecodeUint32(r)
+	_v16 := r[_v15:]
+	if obj.CurrentSyncCommittee == nil {
+		obj.CurrentSyncCommittee = new(SyncCommittee)
+	}
+	if err := obj.CurrentSyncCommittee.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.NextSyncCommittee == nil {
+		obj.NextSyncCommittee = new(SyncCommittee)
+	}
+	if err := obj.NextSyncCommittee.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	_v17 := ssz.DecodeUint32(r)
+	_v18 := r[_v17:]
+	if obj.LatestExecutionPayloadHeader == nil {
+		obj.LatestExecutionPayloadHeader = new(ExecutionPayloadHeaderCapella)
+	}
+	if err := obj.LatestExecutionPayloadHeader.UnmarshalSSZ(_v18); err != nil {
+		return err
+	}
+	r, _v19, _e3 := ssz.DecodeUint64(r)
+	if _e3 != nil {
+		return _e3
+	}
+	obj.NextWithdrawalIndex = _v19
+	r, _v20, _e4 := ssz.DecodeUint64(r)
+	if _e4 != nil {
+		return _e4
+	}
+	obj.NextWithdrawalValidatorIndex = _v20
+	_v21 := ssz.DecodeUint32(r)
+	_v22 := r[_v21:]
+	return nil
+}
+
 func (obj *Checkpoint) SizeSSZ() int {
-	size := 8
+	size := 40
 	return size
 }
 
@@ -1171,8 +1750,17 @@ func (obj *Checkpoint) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *Checkpoint) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.Epoch = _v0
+	return nil
+}
+
 func (obj *Deposit) SizeSSZ() int {
-	size := 8
+	size := 1240
 	return size
 }
 
@@ -1189,8 +1777,18 @@ func (obj *Deposit) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *Deposit) UnmarshalSSZ(r []byte) error {
+	if obj.Data == nil {
+		obj.Data = new(DepositData)
+	}
+	if err := obj.Data.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *DepositData) SizeSSZ() int {
-	size := 8
+	size := 184
 	return size
 }
 
@@ -1202,8 +1800,17 @@ func (obj *DepositData) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *DepositData) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.Amount = _v0
+	return nil
+}
+
 func (obj *DepositMessage) SizeSSZ() int {
-	size := 8
+	size := 88
 	return size
 }
 
@@ -1214,22 +1821,37 @@ func (obj *DepositMessage) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *DepositMessage) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.Amount = _v0
+	return nil
+}
+
 func (obj *ErrorResponse) SizeSSZ() int {
 	size := 4
-	size += len(obj.Message) * 0
+	size += len(obj.Message)
 	return size
 }
 
 func (obj *ErrorResponse) MarshalSSZTo(w []byte) error {
 	_o := 4
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.Message) * 0
+	_o += len(obj.Message)
 	ssz.EncodeBytes(w, obj.Message)
 	return nil
 }
 
+func (obj *ErrorResponse) UnmarshalSSZ(r []byte) error {
+	_v0 := ssz.DecodeUint32(r)
+	_v1 := r[_v0:]
+	return nil
+}
+
 func (obj *Eth1Block) SizeSSZ() int {
-	size := 16
+	size := 48
 	return size
 }
 
@@ -1240,8 +1862,22 @@ func (obj *Eth1Block) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *Eth1Block) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.Timestamp = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.DepositCount = _v1
+	return nil
+}
+
 func (obj *Eth1Data) SizeSSZ() int {
-	size := 8
+	size := 72
 	return size
 }
 
@@ -1252,18 +1888,27 @@ func (obj *Eth1Data) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *Eth1Data) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.DepositCount = _v0
+	return nil
+}
+
 func (obj *ExecutionPayload) SizeSSZ() int {
-	size := 40
-	size += len(obj.ExtraData) * 0
+	size := 508
+	size += len(obj.ExtraData)
 	for _, _v0 := range obj.Transactions {
 		size += 4
-		size += len(_v0) * 0
+		size += len(_v0)
 	}
 	return size
 }
 
 func (obj *ExecutionPayload) MarshalSSZTo(w []byte) error {
-	_o := 40
+	_o := 508
 	ssz.EncodeBytes(w, obj.ParentHash[:])
 	ssz.EncodeBytes(w, obj.FeeRecipient[:])
 	ssz.EncodeBytes(w, obj.StateRoot[:])
@@ -1275,19 +1920,19 @@ func (obj *ExecutionPayload) MarshalSSZTo(w []byte) error {
 	ssz.EncodeUint64(w, obj.GasUsed)
 	ssz.EncodeUint64(w, obj.Timestamp)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.ExtraData) * 0
+	_o += len(obj.ExtraData)
 	ssz.EncodeBytes(w, obj.BaseFeePerGas[:])
 	ssz.EncodeBytes(w, obj.BlockHash[:])
 	ssz.EncodeUint32(w, uint32(_o))
 	for _, _v0 := range obj.Transactions {
 		_o += 4
-		_o += len(_v0) * 0
+		_o += len(_v0)
 	}
 	ssz.EncodeBytes(w, obj.ExtraData)
 	_o = len(obj.Transactions) * 4
 	for _, _v1 := range obj.Transactions {
 		ssz.EncodeUint32(w, uint32(_o))
-		_o += len(_v1) * 0
+		_o += len(_v1)
 	}
 	for _, _v2 := range obj.Transactions {
 		ssz.EncodeBytes(w, _v2)
@@ -1295,19 +1940,47 @@ func (obj *ExecutionPayload) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *ExecutionPayload) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.BlockNumber = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.GasLimit = _v1
+	r, _v2, _e2 := ssz.DecodeUint64(r)
+	if _e2 != nil {
+		return _e2
+	}
+	obj.GasUsed = _v2
+	r, _v3, _e3 := ssz.DecodeUint64(r)
+	if _e3 != nil {
+		return _e3
+	}
+	obj.Timestamp = _v3
+	_v4 := ssz.DecodeUint32(r)
+	_v5 := r[_v4:]
+	_v6 := ssz.DecodeUint32(r)
+	_v7 := r[_v6:]
+	return nil
+}
+
 func (obj *ExecutionPayloadCapella) SizeSSZ() int {
-	size := 44
-	size += len(obj.ExtraData) * 0
+	size := 512
+	size += len(obj.ExtraData)
 	for _, _v0 := range obj.Transactions {
 		size += 4
-		size += len(_v0) * 0
+		size += len(_v0)
 	}
-	size += len(obj.Withdrawals) * 24
+	size += len(obj.Withdrawals) * 44
 	return size
 }
 
 func (obj *ExecutionPayloadCapella) MarshalSSZTo(w []byte) error {
-	_o := 44
+	_o := 512
 	ssz.EncodeBytes(w, obj.ParentHash[:])
 	ssz.EncodeBytes(w, obj.FeeRecipient[:])
 	ssz.EncodeBytes(w, obj.StateRoot[:])
@@ -1319,21 +1992,21 @@ func (obj *ExecutionPayloadCapella) MarshalSSZTo(w []byte) error {
 	ssz.EncodeUint64(w, obj.GasUsed)
 	ssz.EncodeUint64(w, obj.Timestamp)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.ExtraData) * 0
+	_o += len(obj.ExtraData)
 	ssz.EncodeBytes(w, obj.BaseFeePerGas[:])
 	ssz.EncodeBytes(w, obj.BlockHash[:])
 	ssz.EncodeUint32(w, uint32(_o))
 	for _, _v0 := range obj.Transactions {
 		_o += 4
-		_o += len(_v0) * 0
+		_o += len(_v0)
 	}
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.Withdrawals) * 24
+	_o += len(obj.Withdrawals) * 44
 	ssz.EncodeBytes(w, obj.ExtraData)
 	_o = len(obj.Transactions) * 4
 	for _, _v1 := range obj.Transactions {
 		ssz.EncodeUint32(w, uint32(_o))
-		_o += len(_v1) * 0
+		_o += len(_v1)
 	}
 	for _, _v2 := range obj.Transactions {
 		ssz.EncodeBytes(w, _v2)
@@ -1349,14 +2022,44 @@ func (obj *ExecutionPayloadCapella) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *ExecutionPayloadCapella) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.BlockNumber = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.GasLimit = _v1
+	r, _v2, _e2 := ssz.DecodeUint64(r)
+	if _e2 != nil {
+		return _e2
+	}
+	obj.GasUsed = _v2
+	r, _v3, _e3 := ssz.DecodeUint64(r)
+	if _e3 != nil {
+		return _e3
+	}
+	obj.Timestamp = _v3
+	_v4 := ssz.DecodeUint32(r)
+	_v5 := r[_v4:]
+	_v6 := ssz.DecodeUint32(r)
+	_v7 := r[_v6:]
+	_v8 := ssz.DecodeUint32(r)
+	_v9 := r[_v8:]
+	return nil
+}
+
 func (obj *ExecutionPayloadHeader) SizeSSZ() int {
-	size := 36
-	size += len(obj.ExtraData) * 0
+	size := 536
+	size += len(obj.ExtraData)
 	return size
 }
 
 func (obj *ExecutionPayloadHeader) MarshalSSZTo(w []byte) error {
-	_o := 36
+	_o := 536
 	ssz.EncodeBytes(w, obj.ParentHash)
 	ssz.EncodeBytes(w, obj.FeeRecipient)
 	ssz.EncodeBytes(w, obj.StateRoot)
@@ -1368,7 +2071,7 @@ func (obj *ExecutionPayloadHeader) MarshalSSZTo(w []byte) error {
 	ssz.EncodeUint64(w, obj.GasUsed)
 	ssz.EncodeUint64(w, obj.Timestamp)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.ExtraData) * 0
+	_o += len(obj.ExtraData)
 	ssz.EncodeBytes(w, obj.BaseFeePerGas)
 	ssz.EncodeBytes(w, obj.BlockHash)
 	ssz.EncodeBytes(w, obj.TransactionsRoot)
@@ -1376,14 +2079,40 @@ func (obj *ExecutionPayloadHeader) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *ExecutionPayloadHeader) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.BlockNumber = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.GasLimit = _v1
+	r, _v2, _e2 := ssz.DecodeUint64(r)
+	if _e2 != nil {
+		return _e2
+	}
+	obj.GasUsed = _v2
+	r, _v3, _e3 := ssz.DecodeUint64(r)
+	if _e3 != nil {
+		return _e3
+	}
+	obj.Timestamp = _v3
+	_v4 := ssz.DecodeUint32(r)
+	_v5 := r[_v4:]
+	return nil
+}
+
 func (obj *ExecutionPayloadHeaderCapella) SizeSSZ() int {
-	size := 36
-	size += len(obj.ExtraData) * 0
+	size := 568
+	size += len(obj.ExtraData)
 	return size
 }
 
 func (obj *ExecutionPayloadHeaderCapella) MarshalSSZTo(w []byte) error {
-	_o := 36
+	_o := 568
 	ssz.EncodeBytes(w, obj.ParentHash[:])
 	ssz.EncodeBytes(w, obj.FeeRecipient[:])
 	ssz.EncodeBytes(w, obj.StateRoot[:])
@@ -1395,7 +2124,7 @@ func (obj *ExecutionPayloadHeaderCapella) MarshalSSZTo(w []byte) error {
 	ssz.EncodeUint64(w, obj.GasUsed)
 	ssz.EncodeUint64(w, obj.Timestamp)
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.ExtraData) * 0
+	_o += len(obj.ExtraData)
 	ssz.EncodeBytes(w, obj.BaseFeePerGas[:])
 	ssz.EncodeBytes(w, obj.BlockHash[:])
 	ssz.EncodeBytes(w, obj.TransactionsRoot[:])
@@ -1404,8 +2133,34 @@ func (obj *ExecutionPayloadHeaderCapella) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *ExecutionPayloadHeaderCapella) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.BlockNumber = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.GasLimit = _v1
+	r, _v2, _e2 := ssz.DecodeUint64(r)
+	if _e2 != nil {
+		return _e2
+	}
+	obj.GasUsed = _v2
+	r, _v3, _e3 := ssz.DecodeUint64(r)
+	if _e3 != nil {
+		return _e3
+	}
+	obj.Timestamp = _v3
+	_v4 := ssz.DecodeUint32(r)
+	_v5 := r[_v4:]
+	return nil
+}
+
 func (obj *Fork) SizeSSZ() int {
-	size := 8
+	size := 16
 	return size
 }
 
@@ -1416,8 +2171,17 @@ func (obj *Fork) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *Fork) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.Epoch = _v0
+	return nil
+}
+
 func (obj *HistoricalBatch) SizeSSZ() int {
-	size := 0
+	size := 524288
 	return size
 }
 
@@ -1431,8 +2195,12 @@ func (obj *HistoricalBatch) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *HistoricalBatch) UnmarshalSSZ(r []byte) error {
+	return nil
+}
+
 func (obj *HistoricalSummary) SizeSSZ() int {
-	size := 0
+	size := 64
 	return size
 }
 
@@ -1442,14 +2210,18 @@ func (obj *HistoricalSummary) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *HistoricalSummary) UnmarshalSSZ(r []byte) error {
+	return nil
+}
+
 func (obj *IndexedAttestation) SizeSSZ() int {
-	size := 36
+	size := 228
 	size += len(obj.AttestationIndices) * 8
 	return size
 }
 
 func (obj *IndexedAttestation) MarshalSSZTo(w []byte) error {
-	_o := 36
+	_o := 228
 	ssz.EncodeUint32(w, uint32(_o))
 	_o += len(obj.AttestationIndices) * 8
 	if obj.Data == nil {
@@ -1463,16 +2235,28 @@ func (obj *IndexedAttestation) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *IndexedAttestation) UnmarshalSSZ(r []byte) error {
+	_v0 := ssz.DecodeUint32(r)
+	_v1 := r[_v0:]
+	if obj.Data == nil {
+		obj.Data = new(AttestationData)
+	}
+	if err := obj.Data.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *PendingAttestation) SizeSSZ() int {
-	size := 52
-	size += len(obj.AggregationBits) * 0
+	size := 148
+	size += len(obj.AggregationBits)
 	return size
 }
 
 func (obj *PendingAttestation) MarshalSSZTo(w []byte) error {
-	_o := 52
+	_o := 148
 	ssz.EncodeUint32(w, uint32(_o))
-	_o += len(obj.AggregationBits) * 0
+	_o += len(obj.AggregationBits)
 	if obj.Data == nil {
 		obj.Data = new(AttestationData)
 	}
@@ -1485,8 +2269,30 @@ func (obj *PendingAttestation) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *PendingAttestation) UnmarshalSSZ(r []byte) error {
+	_v0 := ssz.DecodeUint32(r)
+	_v1 := r[_v0:]
+	if obj.Data == nil {
+		obj.Data = new(AttestationData)
+	}
+	if err := obj.Data.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	r, _v2, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.InclusionDelay = _v2
+	r, _v3, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.ProposerIndex = _v3
+	return nil
+}
+
 func (obj *ProposerSlashing) SizeSSZ() int {
-	size := 32
+	size := 416
 	return size
 }
 
@@ -1506,8 +2312,24 @@ func (obj *ProposerSlashing) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *ProposerSlashing) UnmarshalSSZ(r []byte) error {
+	if obj.Header1 == nil {
+		obj.Header1 = new(SignedBeaconBlockHeader)
+	}
+	if err := obj.Header1.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	if obj.Header2 == nil {
+		obj.Header2 = new(SignedBeaconBlockHeader)
+	}
+	if err := obj.Header2.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *SignedBLSToExecutionChange) SizeSSZ() int {
-	size := 8
+	size := 172
 	return size
 }
 
@@ -1522,8 +2344,18 @@ func (obj *SignedBLSToExecutionChange) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *SignedBLSToExecutionChange) UnmarshalSSZ(r []byte) error {
+	if obj.Message == nil {
+		obj.Message = new(BLSToExecutionChange)
+	}
+	if err := obj.Message.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *SignedBeaconBlock) SizeSSZ() int {
-	size := 4
+	size := 100
 	if obj.Block == nil {
 		obj.Block = new(BeaconBlock)
 	}
@@ -1532,7 +2364,7 @@ func (obj *SignedBeaconBlock) SizeSSZ() int {
 }
 
 func (obj *SignedBeaconBlock) MarshalSSZTo(w []byte) error {
-	_o := 4
+	_o := 100
 	ssz.EncodeUint32(w, uint32(_o))
 	if obj.Block == nil {
 		obj.Block = new(BeaconBlock)
@@ -1548,8 +2380,20 @@ func (obj *SignedBeaconBlock) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *SignedBeaconBlock) UnmarshalSSZ(r []byte) error {
+	_v0 := ssz.DecodeUint32(r)
+	_v1 := r[_v0:]
+	if obj.Block == nil {
+		obj.Block = new(BeaconBlock)
+	}
+	if err := obj.Block.UnmarshalSSZ(_v1); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *SignedBeaconBlockCapella) SizeSSZ() int {
-	size := 4
+	size := 100
 	if obj.Block == nil {
 		obj.Block = new(BeaconBlockCapella)
 	}
@@ -1558,7 +2402,7 @@ func (obj *SignedBeaconBlockCapella) SizeSSZ() int {
 }
 
 func (obj *SignedBeaconBlockCapella) MarshalSSZTo(w []byte) error {
-	_o := 4
+	_o := 100
 	ssz.EncodeUint32(w, uint32(_o))
 	if obj.Block == nil {
 		obj.Block = new(BeaconBlockCapella)
@@ -1574,8 +2418,20 @@ func (obj *SignedBeaconBlockCapella) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *SignedBeaconBlockCapella) UnmarshalSSZ(r []byte) error {
+	_v0 := ssz.DecodeUint32(r)
+	_v1 := r[_v0:]
+	if obj.Block == nil {
+		obj.Block = new(BeaconBlockCapella)
+	}
+	if err := obj.Block.UnmarshalSSZ(_v1); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *SignedBeaconBlockHeader) SizeSSZ() int {
-	size := 16
+	size := 208
 	return size
 }
 
@@ -1590,8 +2446,18 @@ func (obj *SignedBeaconBlockHeader) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *SignedBeaconBlockHeader) UnmarshalSSZ(r []byte) error {
+	if obj.Header == nil {
+		obj.Header = new(BeaconBlockHeader)
+	}
+	if err := obj.Header.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *SignedVoluntaryExit) SizeSSZ() int {
-	size := 16
+	size := 112
 	return size
 }
 
@@ -1606,8 +2472,18 @@ func (obj *SignedVoluntaryExit) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *SignedVoluntaryExit) UnmarshalSSZ(r []byte) error {
+	if obj.Exit == nil {
+		obj.Exit = new(VoluntaryExit)
+	}
+	if err := obj.Exit.UnmarshalSSZ(r); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (obj *SigningRoot) SizeSSZ() int {
-	size := 0
+	size := 40
 	return size
 }
 
@@ -1617,8 +2493,12 @@ func (obj *SigningRoot) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *SigningRoot) UnmarshalSSZ(r []byte) error {
+	return nil
+}
+
 func (obj *SyncAggregate) SizeSSZ() int {
-	size := 0
+	size := 160
 	return size
 }
 
@@ -1628,8 +2508,12 @@ func (obj *SyncAggregate) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *SyncAggregate) UnmarshalSSZ(r []byte) error {
+	return nil
+}
+
 func (obj *SyncCommittee) SizeSSZ() int {
-	size := 0
+	size := 24624
 	return size
 }
 
@@ -1641,8 +2525,12 @@ func (obj *SyncCommittee) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *SyncCommittee) UnmarshalSSZ(r []byte) error {
+	return nil
+}
+
 func (obj *Transfer) SizeSSZ() int {
-	size := 40
+	size := 184
 	return size
 }
 
@@ -1657,8 +2545,37 @@ func (obj *Transfer) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *Transfer) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.Sender = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.Recipient = _v1
+	r, _v2, _e2 := ssz.DecodeUint64(r)
+	if _e2 != nil {
+		return _e2
+	}
+	obj.Amount = _v2
+	r, _v3, _e3 := ssz.DecodeUint64(r)
+	if _e3 != nil {
+		return _e3
+	}
+	obj.Fee = _v3
+	r, _v4, _e4 := ssz.DecodeUint64(r)
+	if _e4 != nil {
+		return _e4
+	}
+	obj.Slot = _v4
+	return nil
+}
+
 func (obj *Validator) SizeSSZ() int {
-	size := 41
+	size := 121
 	return size
 }
 
@@ -1674,6 +2591,40 @@ func (obj *Validator) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *Validator) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.EffectiveBalance = _v0
+	r, _v1, _e1 := ssz.DecodeBool(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.Slashed = _v1
+	r, _v2, _e2 := ssz.DecodeUint64(r)
+	if _e2 != nil {
+		return _e2
+	}
+	obj.ActivationEligibilityEpoch = _v2
+	r, _v3, _e3 := ssz.DecodeUint64(r)
+	if _e3 != nil {
+		return _e3
+	}
+	obj.ActivationEpoch = _v3
+	r, _v4, _e4 := ssz.DecodeUint64(r)
+	if _e4 != nil {
+		return _e4
+	}
+	obj.ExitEpoch = _v4
+	r, _v5, _e5 := ssz.DecodeUint64(r)
+	if _e5 != nil {
+		return _e5
+	}
+	obj.WithdrawableEpoch = _v5
+	return nil
+}
+
 func (obj *VoluntaryExit) SizeSSZ() int {
 	size := 16
 	return size
@@ -1685,8 +2636,22 @@ func (obj *VoluntaryExit) MarshalSSZTo(w []byte) error {
 	return nil
 }
 
+func (obj *VoluntaryExit) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.Epoch = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.ValidatorIndex = _v1
+	return nil
+}
+
 func (obj *Withdrawal) SizeSSZ() int {
-	size := 24
+	size := 44
 	return size
 }
 
@@ -1695,5 +2660,24 @@ func (obj *Withdrawal) MarshalSSZTo(w []byte) error {
 	ssz.EncodeUint64(w, obj.ValidatorIndex)
 	ssz.EncodeBytes(w, obj.Address[:])
 	ssz.EncodeUint64(w, obj.Amount)
+	return nil
+}
+
+func (obj *Withdrawal) UnmarshalSSZ(r []byte) error {
+	r, _v0, _e0 := ssz.DecodeUint64(r)
+	if _e0 != nil {
+		return _e0
+	}
+	obj.Index = _v0
+	r, _v1, _e1 := ssz.DecodeUint64(r)
+	if _e1 != nil {
+		return _e1
+	}
+	obj.ValidatorIndex = _v1
+	r, _v2, _e2 := ssz.DecodeUint64(r)
+	if _e2 != nil {
+		return _e2
+	}
+	obj.Amount = _v2
 	return nil
 }
