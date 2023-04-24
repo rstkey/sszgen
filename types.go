@@ -116,19 +116,19 @@ func (b *sszBasic) genEncoder(ctx *genContext, obj string) string {
 
 func (b *sszBasic) genDecoder(ctx *genContext, r string, obj string) string {
 	var (
-		vid = ctx.tmpVar()
-		eid = ctx.tmpErr()
+		v   = ctx.tmpVar("v")
+		err = ctx.tmpVar("e")
 		buf bytes.Buffer
 	)
 	ctx.addImport(pkgPath, "")
-	fmt.Fprintf(&buf, "%s, %s, %s := %s(%s)\n", r, vid, eid, ctx.qualifier(pkgPath, b.decoder), r)
-	fmt.Fprintf(&buf, "if %s != nil {\n", eid)
-	fmt.Fprintf(&buf, "return %s\n", eid)
+	fmt.Fprintf(&buf, "%s, %s, %s := %s(%s)\n", r, v, err, ctx.qualifier(pkgPath, b.decoder), r)
+	fmt.Fprintf(&buf, "if %s != nil {\n", err)
+	fmt.Fprintf(&buf, "return %s\n", err)
 	fmt.Fprint(&buf, "}\n")
 	if b.named != nil {
-		vid = fmt.Sprintf("%s(%s)", b.named.Obj().Name(), vid) // explicit type conversion
+		v = fmt.Sprintf("%s(%s)", b.named.Obj().Name(), v) // explicit type conversion
 	}
-	fmt.Fprintf(&buf, "%s = %s\n", obj, vid)
+	fmt.Fprintf(&buf, "%s = %s\n", obj, v)
 	return buf.String()
 }
 
@@ -200,7 +200,7 @@ func (v *sszVector) genSize(ctx *genContext, w string, obj string) string {
 	}
 	var (
 		b   bytes.Buffer
-		vid = ctx.tmpVar()
+		vid = ctx.tmpVar("v")
 	)
 	fmt.Fprintf(&b, "for _, %s := range %s {\n", vid, obj)
 	fmt.Fprintf(&b, "%s", v.elem.genSize(ctx, w, vid))
@@ -214,16 +214,16 @@ func (v *sszVector) genEncoder(ctx *genContext, obj string) string {
 	}
 	var b bytes.Buffer
 	if !v.elem.fixed() {
-		oid := ctx.tmpVar()
-		fmt.Fprintf(&b, "%s := len(%s)*4\n", oid, obj)
+		offset := ctx.tmpVar("o")
+		fmt.Fprintf(&b, "%s := len(%s)*4\n", offset, obj)
 
-		vid := ctx.tmpVar()
+		vid := ctx.tmpVar("v")
 		fmt.Fprintf(&b, "for _, %s := range %s {\n", vid, obj)
-		fmt.Fprintf(&b, "%s(w, uint32(%s))\n", ctx.qualifier(pkgPath, "EncodeUint32"), oid)
-		fmt.Fprintf(&b, "%s", v.elem.genSize(ctx, oid, vid))
+		fmt.Fprintf(&b, "%s(w, uint32(%s))\n", ctx.qualifier(pkgPath, "EncodeUint32"), offset)
+		fmt.Fprintf(&b, "%s", v.elem.genSize(ctx, offset, vid))
 		fmt.Fprint(&b, "}\n")
 	}
-	vid := ctx.tmpVar()
+	vid := ctx.tmpVar("v")
 	fmt.Fprintf(&b, "for _, %s := range %s {\n", vid, obj)
 	fmt.Fprintf(&b, "%s", v.elem.genEncoder(ctx, vid))
 	fmt.Fprint(&b, "}\n")
@@ -231,20 +231,82 @@ func (v *sszVector) genEncoder(ctx *genContext, obj string) string {
 }
 
 func (v *sszVector) genDecoder(ctx *genContext, r string, obj string) string {
+	var b bytes.Buffer
 	if v.decoder != "" {
 		var (
-			b   bytes.Buffer
-			vid = ctx.tmpVar()
-			eid = ctx.tmpErr()
+			vn  = ctx.tmpVar("v")
+			err = ctx.tmpVar("e")
 		)
-		fmt.Fprintf(&b, "%s, %s, %s := %s(%s)\n", r, vid, eid, ctx.qualifier(pkgPath, v.decoder), r)
-		fmt.Fprintf(&b, "if %s != nil {\n", eid)
-		fmt.Fprintf(&b, "return %s\n", eid)
+		fmt.Fprintf(&b, "%s, %s, %s := %s(%s)\n", r, vn, err, ctx.qualifier(pkgPath, v.decoder), r)
+		fmt.Fprintf(&b, "if %s != nil {\n", err)
+		fmt.Fprintf(&b, "return %s\n", err)
 		fmt.Fprint(&b, "}\n")
-		fmt.Fprintf(&b, "%s = %s\n", obj, vid)
+		fmt.Fprintf(&b, "%s = %s(%s)\n", obj, v.typeName(), vn)
 		return b.String()
 	}
-	return ""
+	if v.elem.fixed() {
+		var cnt = ctx.tmpVar("i")
+		fmt.Fprintf(&b, "for %s := 0; %s < len(%s); %s += 1 {\n", cnt, cnt, obj, cnt)
+		fmt.Fprintf(&b, "%s", v.elem.genDecoder(ctx, r, fmt.Sprintf("%s[%s]", obj, cnt)))
+		fmt.Fprint(&b, "}\n") // curly brace for loop
+		return b.String()
+	}
+	/*
+		var offsets []uint32
+		for i := 0; i < len(obj); i += 1 {
+			r, o, e = DecodeUint32(r)
+			if e != nil {
+				return e
+			}
+			offsets = append(offsets, o)
+		}
+		for i := 0; i < len(obj); i += 1 {
+			var _r []byte
+			if i == len(obj) - 1 {
+				_r = r[offsets[i]:]
+			} else {
+				_r = r[offsets[i]:offsets[i+1]]
+			}
+		}
+
+		for i := 0; i < len(obj); i += 1 {
+			genDecode(r, obj[i])
+		}
+	*/
+	var (
+		cnt     = ctx.tmpVar("i")
+		offsets = ctx.tmpVar("v")
+		offset  = ctx.tmpVar("v")
+		err     = ctx.tmpVar("e")
+		reader  = ctx.tmpVar("r")
+	)
+	// Variables declaration
+	fmt.Fprint(&b, "var (\n")
+	fmt.Fprintf(&b, "%s []uint32\n", offsets)
+	fmt.Fprintf(&b, "%s uint32\n", offset)
+	fmt.Fprintf(&b, "%s error\n", err)
+	fmt.Fprintf(&b, "%s []byte\n", reader)
+	fmt.Fprint(&b, ")\n\n")
+
+	// Decode offsets
+	fmt.Fprintf(&b, "for %s := 0; %s < len(%s); %s += 1 {\n", cnt, cnt, obj, cnt)
+	fmt.Fprintf(&b, "%s, %s, %s = %s(%s)\n", r, offset, err, ctx.qualifier(pkgPath, "DecodeUint32"), r)
+	fmt.Fprintf(&b, "if %s != nil {\n", err)
+	fmt.Fprintf(&b, "return %s\n", err)
+	fmt.Fprint(&b, "}\n") // curly brace for if
+	fmt.Fprintf(&b, "%s = append(%s, %s)\n", offsets, offsets, offset)
+	fmt.Fprint(&b, "}\n") // curly brace for loop
+
+	// Decode elements
+	fmt.Fprintf(&b, "for %s := 0; %s < len(%s); %s += 1 {\n", cnt, cnt, obj, cnt)
+	fmt.Fprintf(&b, "if %s == len(%s)-1 {\n", cnt, obj)
+	fmt.Fprintf(&b, "%s = %s[%s[%s]:]\n", reader, r, offsets, cnt)
+	fmt.Fprint(&b, "} else {\n")
+	fmt.Fprintf(&b, "%s = %s[%s[%s]:%s[%s+1]]\n", reader, r, offsets, cnt, offsets, cnt)
+	fmt.Fprint(&b, "}\n") // curly brace for if/else
+	fmt.Fprintf(&b, "%s", v.elem.genDecoder(ctx, reader, fmt.Sprintf("%s[%s]", obj, cnt)))
+	fmt.Fprint(&b, "}\n") // curly brace for loop
+	return b.String()
 }
 
 type sszList struct {
@@ -313,7 +375,7 @@ func (l *sszList) genSize(ctx *genContext, w string, obj string) string {
 	}
 	var (
 		b   bytes.Buffer
-		vid = ctx.tmpVar()
+		vid = ctx.tmpVar("v")
 	)
 	fmt.Fprintf(&b, "for _, %s := range %s {\n", vid, obj)
 	fmt.Fprintf(&b, "%s += 4\n", w)
@@ -328,16 +390,16 @@ func (l *sszList) genEncoder(ctx *genContext, obj string) string {
 	}
 	var b bytes.Buffer
 	if !l.elem.fixed() {
-		oid := ctx.tmpVar()
+		oid := ctx.tmpVar("o")
 		fmt.Fprintf(&b, "%s := len(%s)*4\n", oid, obj)
 
-		vid := ctx.tmpVar()
+		vid := ctx.tmpVar("v")
 		fmt.Fprintf(&b, "for _, %s := range %s {\n", vid, obj)
 		fmt.Fprintf(&b, "%s(w, uint32(%s))\n", ctx.qualifier(pkgPath, "EncodeUint32"), oid)
 		fmt.Fprintf(&b, "%s", l.elem.genSize(ctx, oid, vid))
 		fmt.Fprint(&b, "}\n")
 	}
-	vid := ctx.tmpVar()
+	vid := ctx.tmpVar("v")
 	fmt.Fprintf(&b, "for _, %s := range %s {\n", vid, obj)
 	fmt.Fprintf(&b, "%s", l.elem.genEncoder(ctx, vid))
 	fmt.Fprint(&b, "}\n")
@@ -345,20 +407,84 @@ func (l *sszList) genEncoder(ctx *genContext, obj string) string {
 }
 
 func (l *sszList) genDecoder(ctx *genContext, r string, obj string) string {
+	var b bytes.Buffer
+	ctx.addImport(pkgPath, "")
+
 	if l.decoder != "" {
 		var (
-			b   bytes.Buffer
-			vid = ctx.tmpVar()
-			eid = ctx.tmpErr()
+			v   = ctx.tmpVar("v")
+			err = ctx.tmpVar("e")
 		)
-		fmt.Fprintf(&b, "%s, %s, %s := %s(%s)\n", r, vid, eid, ctx.qualifier(pkgPath, l.decoder), r)
-		fmt.Fprintf(&b, "if %s != nil {\n", eid)
-		fmt.Fprintf(&b, "return %s\n", eid)
+		fmt.Fprintf(&b, "%s, %s, %s := %s(%s)\n", r, v, err, ctx.qualifier(pkgPath, l.decoder), r)
+		fmt.Fprintf(&b, "if %s != nil {\n", err)
+		fmt.Fprintf(&b, "return %s\n", err)
 		fmt.Fprint(&b, "}\n")
-		fmt.Fprintf(&b, "%s = %s\n", obj, vid)
+		fmt.Fprintf(&b, "%s = %s\n", obj, v)
 		return b.String()
 	}
-	return ""
+	if l.elem.fixed() {
+		var cnt = ctx.tmpVar("i")
+		fmt.Fprintf(&b, "for %s := 0; %s < len(%s); %s += 1 {\n", cnt, cnt, obj, cnt)
+		fmt.Fprintf(&b, "%s", l.elem.genDecoder(ctx, r, fmt.Sprintf("%s[%s]", obj, cnt)))
+		fmt.Fprint(&b, "}\n") // curly brace for loop
+		return b.String()
+	}
+	/*
+		var offsets []uint32
+		for i := 0; i < len(obj); i += 1 {
+			r, o, e = DecodeUint32(r)
+			if e != nil {
+				return e
+			}
+			offsets = append(offsets, o)
+		}
+		for i := 0; i < len(obj); i += 1 {
+			var _r []byte
+			if i == len(obj) - 1 {
+				_r = r[offsets[i]:]
+			} else {
+				_r = r[offsets[i]:offsets[i+1]]
+			}
+		}
+
+		for i := 0; i < len(obj); i += 1 {
+			genDecode(r, obj[i])
+		}
+	*/
+	var (
+		cnt     = ctx.tmpVar("i")
+		offsets = ctx.tmpVar("v")
+		offset  = ctx.tmpVar("v")
+		err     = ctx.tmpVar("e")
+		reader  = ctx.tmpVar("r")
+	)
+	// Variables declaration
+	fmt.Fprint(&b, "var (\n")
+	fmt.Fprintf(&b, "%s []uint32\n", offsets)
+	fmt.Fprintf(&b, "%s uint32\n", offset)
+	fmt.Fprintf(&b, "%s error\n", err)
+	fmt.Fprintf(&b, "%s []byte\n", reader)
+	fmt.Fprint(&b, ")\n\n")
+
+	// Decode offsets
+	fmt.Fprintf(&b, "for %s := 0; %s < len(%s); %s += 1 {\n", cnt, cnt, obj, cnt)
+	fmt.Fprintf(&b, "%s, %s, %s = %s(%s)\n", r, offset, err, ctx.qualifier(pkgPath, "DecodeUint32"), r)
+	fmt.Fprintf(&b, "if %s != nil {\n", err)
+	fmt.Fprintf(&b, "return %s\n", err)
+	fmt.Fprint(&b, "}\n") // curly brace for if
+	fmt.Fprintf(&b, "%s = append(%s, %s)\n", offsets, offsets, offset)
+	fmt.Fprint(&b, "}\n") // curly brace for loop
+
+	// Decode elements
+	fmt.Fprintf(&b, "for %s := 0; %s < len(%s); %s += 1 {\n", cnt, cnt, obj, cnt)
+	fmt.Fprintf(&b, "if %s == len(%s)-1 {\n", cnt, obj)
+	fmt.Fprintf(&b, "%s = %s[%s[%s]:]\n", reader, r, offsets, cnt)
+	fmt.Fprint(&b, "} else {\n")
+	fmt.Fprintf(&b, "%s = %s[%s[%s]:%s[%s+1]]\n", reader, r, offsets, cnt, offsets, cnt)
+	fmt.Fprint(&b, "}\n") // curly brace for if/else
+	fmt.Fprintf(&b, "%s", l.elem.genDecoder(ctx, reader, fmt.Sprintf("%s[%s]", obj, cnt)))
+	fmt.Fprint(&b, "}\n") // curly brace for loop
+	return b.String()
 }
 
 type sszStruct struct {
@@ -469,7 +595,7 @@ func (s *sszStruct) genEncoder(ctx *genContext, obj string) string {
 		for _, field := range s.fields {
 			offset += field.fixedSize()
 		}
-		oid = ctx.tmpVar()
+		oid = ctx.tmpVar("o")
 		fmt.Fprintf(&b, "%s := %d\n", oid, offset)
 	}
 	for i, field := range s.fields {
@@ -508,7 +634,7 @@ func (s *sszStruct) genDecoder(ctx *genContext, r string, obj string) string {
 			fmt.Fprintf(&b, "%s", field.genDecoder(ctx, r, fmt.Sprintf("%s.%s", obj, s.fieldNames[i])))
 		} else {
 			ctx.addImport(pkgPath, "")
-			vid, eid := ctx.tmpVar(), ctx.tmpErr()
+			vid, eid := ctx.tmpVar("v"), ctx.tmpVar("e")
 			fmt.Fprintf(&b, "r, %s, %s := %s(%s)\n", vid, eid, ctx.qualifier(pkgPath, "DecodeUint32"), r)
 			fmt.Fprintf(&b, "if %s != nil {\n", eid)
 			fmt.Fprintf(&b, "return %s\n", eid)
@@ -521,13 +647,14 @@ func (s *sszStruct) genDecoder(ctx *genContext, r string, obj string) string {
 			continue
 		}
 		ctx.addImport(pkgPath, "")
-		rid := ctx.tmpVar()
+		reader := ctx.tmpVar("r")
 		if count == len(offsets)-1 {
-			fmt.Fprintf(&b, "%s := %s[%s:]\n", rid, r, offsets[count])
+			fmt.Fprintf(&b, "%s := %s[%s:]\n", reader, r, offsets[count])
 		} else {
-			fmt.Fprintf(&b, "%s := %s[%s:%s]\n", rid, r, offsets[count], offsets[count+1])
+			fmt.Fprintf(&b, "%s := %s[%s:%s]\n", reader, r, offsets[count], offsets[count+1])
 		}
-		fmt.Fprintf(&b, "%s", field.genDecoder(ctx, rid, fmt.Sprintf("%s.%s", obj, s.fieldNames[i])))
+		count += 1
+		fmt.Fprintf(&b, "%s", field.genDecoder(ctx, reader, fmt.Sprintf("%s.%s", obj, s.fieldNames[i])))
 	}
 	return b.String()
 }

@@ -14,7 +14,6 @@ type genContext struct {
 	pkg     *types.Package
 	imports map[string]string
 	nvar    int
-	nerr    int
 }
 
 func newGenContext(pkg *types.Package) *genContext {
@@ -76,21 +75,14 @@ func (ctx *genContext) header() []byte {
 	return b.Bytes()
 }
 
-func (ctx *genContext) tmpVar() string {
-	id := fmt.Sprintf("_v%d", ctx.nvar)
+func (ctx *genContext) tmpVar(name string) string {
+	id := fmt.Sprintf("_%s%d", name, ctx.nvar)
 	ctx.nvar += 1
-	return id
-}
-
-func (ctx *genContext) tmpErr() string {
-	id := fmt.Sprintf("_e%d", ctx.nerr)
-	ctx.nerr += 1
 	return id
 }
 
 func (ctx *genContext) reset() {
 	ctx.nvar = 0
-	ctx.nerr = 0
 	ctx.topType = true
 }
 
