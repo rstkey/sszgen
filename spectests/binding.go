@@ -16,44 +16,26 @@ func (obj *AggregateAndProof) SizeSSZ() int {
 	return s
 }
 
-func (obj *AggregateAndProof) MarshalSSZTo(w []byte) error {
-	_o0 := 108
-	ssz.EncodeUint64(w, obj.Index)
-	ssz.EncodeUint32(w, uint32(_o0))
-	if obj.Aggregate == nil {
-		obj.Aggregate = new(Attestation)
-	}
-	_o0 += obj.Aggregate.SizeSSZ()
-	ssz.EncodeBytes(w, obj.SelectionProof[:])
-	if obj.Aggregate == nil {
-		obj.Aggregate = new(Attestation)
-	}
-	if err := obj.Aggregate.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (obj *AggregateAndProof) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *AggregateAndProof) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.Index = _v0
-	r, _v2, _e3 := ssz.DecodeUint32(r)
+	_v2, _e3 := ssz.DecodeUint32(s)
 	if _e3 != nil {
 		return _e3
 	}
-	r, _v4, _e5 := ssz.DecodeBytes(r)
+	_v4, _e5 := ssz.DecodeBytes(s)
 	if _e5 != nil {
 		return _e5
 	}
 	obj.SelectionProof = [96]byte(_v4)
-	_r6 := r[_v2:]
+	_ = _v2
 	if obj.Aggregate == nil {
 		obj.Aggregate = new(Attestation)
 	}
-	if err := obj.Aggregate.UnmarshalSSZ(_r6); err != nil {
+	if err := obj.Aggregate.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	return nil
@@ -65,43 +47,28 @@ func (obj *Attestation) SizeSSZ() int {
 	return s
 }
 
-func (obj *Attestation) MarshalSSZTo(w []byte) error {
-	_o0 := 228
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.AggregationBits)
-	if obj.Data == nil {
-		obj.Data = new(AttestationData)
-	}
-	if err := obj.Data.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeBytes(w, obj.Signature[:])
-	ssz.EncodeBytes(w, obj.AggregationBits)
-	return nil
-}
-
-func (obj *Attestation) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint32(r)
+func (obj *Attestation) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint32(s)
 	if _e1 != nil {
 		return _e1
 	}
 	if obj.Data == nil {
 		obj.Data = new(AttestationData)
 	}
-	if err := obj.Data.UnmarshalSSZ(r); err != nil {
+	if err := obj.Data.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.Signature = [96]byte(_v2)
-	_r4 := r[_v0:]
-	_r4, _v5, _e6 := ssz.DecodeBytes(_r4)
-	if _e6 != nil {
-		return _e6
+	_ = _v0
+	_v4, _e5 := ssz.DecodeBytes(s)
+	if _e5 != nil {
+		return _e5
 	}
-	obj.AggregationBits = _v5
+	obj.AggregationBits = _v4
 	return nil
 }
 
@@ -110,37 +77,18 @@ func (obj *AttestationData) SizeSSZ() int {
 	return s
 }
 
-func (obj *AttestationData) MarshalSSZTo(w []byte) error {
-	ssz.EncodeUint64(w, uint64(obj.Slot))
-	ssz.EncodeUint64(w, obj.Index)
-	ssz.EncodeBytes(w, obj.BeaconBlockHash[:])
-	if obj.Source == nil {
-		obj.Source = new(Checkpoint)
-	}
-	if err := obj.Source.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.Target == nil {
-		obj.Target = new(Checkpoint)
-	}
-	if err := obj.Target.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (obj *AttestationData) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *AttestationData) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.Slot = Slot(_v0)
-	r, _v2, _e3 := ssz.DecodeUint64(r)
+	_v2, _e3 := ssz.DecodeUint64(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.Index = _v2
-	r, _v4, _e5 := ssz.DecodeBytes(r)
+	_v4, _e5 := ssz.DecodeBytes(s)
 	if _e5 != nil {
 		return _e5
 	}
@@ -148,13 +96,13 @@ func (obj *AttestationData) UnmarshalSSZ(r []byte) error {
 	if obj.Source == nil {
 		obj.Source = new(Checkpoint)
 	}
-	if err := obj.Source.UnmarshalSSZ(r); err != nil {
+	if err := obj.Source.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.Target == nil {
 		obj.Target = new(Checkpoint)
 	}
-	if err := obj.Target.UnmarshalSSZ(r); err != nil {
+	if err := obj.Target.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	return nil
@@ -173,54 +121,27 @@ func (obj *AttesterSlashing) SizeSSZ() int {
 	return s
 }
 
-func (obj *AttesterSlashing) MarshalSSZTo(w []byte) error {
-	_o0 := 8
-	ssz.EncodeUint32(w, uint32(_o0))
-	if obj.Attestation1 == nil {
-		obj.Attestation1 = new(IndexedAttestation)
-	}
-	_o0 += obj.Attestation1.SizeSSZ()
-	ssz.EncodeUint32(w, uint32(_o0))
-	if obj.Attestation2 == nil {
-		obj.Attestation2 = new(IndexedAttestation)
-	}
-	_o0 += obj.Attestation2.SizeSSZ()
-	if obj.Attestation1 == nil {
-		obj.Attestation1 = new(IndexedAttestation)
-	}
-	if err := obj.Attestation1.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.Attestation2 == nil {
-		obj.Attestation2 = new(IndexedAttestation)
-	}
-	if err := obj.Attestation2.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (obj *AttesterSlashing) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint32(r)
+func (obj *AttesterSlashing) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint32(s)
 	if _e1 != nil {
 		return _e1
 	}
-	r, _v2, _e3 := ssz.DecodeUint32(r)
+	_v2, _e3 := ssz.DecodeUint32(s)
 	if _e3 != nil {
 		return _e3
 	}
-	_r4 := r[_v0:_v2]
+	s.Reset(_v0 - _v2)
 	if obj.Attestation1 == nil {
 		obj.Attestation1 = new(IndexedAttestation)
 	}
-	if err := obj.Attestation1.UnmarshalSSZ(_r4); err != nil {
+	if err := obj.Attestation1.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	_r5 := r[_v2:]
+	_ = _v2
 	if obj.Attestation2 == nil {
 		obj.Attestation2 = new(IndexedAttestation)
 	}
-	if err := obj.Attestation2.UnmarshalSSZ(_r5); err != nil {
+	if err := obj.Attestation2.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	return nil
@@ -231,25 +152,18 @@ func (obj *BLSToExecutionChange) SizeSSZ() int {
 	return s
 }
 
-func (obj *BLSToExecutionChange) MarshalSSZTo(w []byte) error {
-	ssz.EncodeUint64(w, obj.ValidatorIndex)
-	ssz.EncodeBytes(w, obj.FromBLSPubKey[:])
-	ssz.EncodeBytes(w, obj.ToExecutionAddress[:])
-	return nil
-}
-
-func (obj *BLSToExecutionChange) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *BLSToExecutionChange) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.ValidatorIndex = _v0
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.FromBLSPubKey = [48]byte(_v2)
-	r, _v4, _e5 := ssz.DecodeBytes(r)
+	_v4, _e5 := ssz.DecodeBytes(s)
 	if _e5 != nil {
 		return _e5
 	}
@@ -266,56 +180,36 @@ func (obj *BeaconBlock) SizeSSZ() int {
 	return s
 }
 
-func (obj *BeaconBlock) MarshalSSZTo(w []byte) error {
-	_o0 := 84
-	ssz.EncodeUint64(w, obj.Slot)
-	ssz.EncodeUint64(w, obj.ProposerIndex)
-	ssz.EncodeBytes(w, obj.ParentRoot)
-	ssz.EncodeBytes(w, obj.StateRoot)
-	ssz.EncodeUint32(w, uint32(_o0))
-	if obj.Body == nil {
-		obj.Body = new(BeaconBlockBodyPhase0)
-	}
-	_o0 += obj.Body.SizeSSZ()
-	if obj.Body == nil {
-		obj.Body = new(BeaconBlockBodyPhase0)
-	}
-	if err := obj.Body.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (obj *BeaconBlock) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *BeaconBlock) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.Slot = _v0
-	r, _v2, _e3 := ssz.DecodeUint64(r)
+	_v2, _e3 := ssz.DecodeUint64(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.ProposerIndex = _v2
-	r, _v4, _e5 := ssz.DecodeBytes(r)
+	_v4, _e5 := ssz.DecodeBytes(s)
 	if _e5 != nil {
 		return _e5
 	}
 	obj.ParentRoot = _v4
-	r, _v6, _e7 := ssz.DecodeBytes(r)
+	_v6, _e7 := ssz.DecodeBytes(s)
 	if _e7 != nil {
 		return _e7
 	}
 	obj.StateRoot = _v6
-	r, _v8, _e9 := ssz.DecodeUint32(r)
+	_v8, _e9 := ssz.DecodeUint32(s)
 	if _e9 != nil {
 		return _e9
 	}
-	_r10 := r[_v8:]
+	_ = _v8
 	if obj.Body == nil {
 		obj.Body = new(BeaconBlockBodyPhase0)
 	}
-	if err := obj.Body.UnmarshalSSZ(_r10); err != nil {
+	if err := obj.Body.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	return nil
@@ -343,105 +237,8 @@ func (obj *BeaconBlockBodyAltair) SizeSSZ() int {
 	return s
 }
 
-func (obj *BeaconBlockBodyAltair) MarshalSSZTo(w []byte) error {
-	_o0 := 380
-	ssz.EncodeBytes(w, obj.RandaoReveal)
-	if obj.Eth1Data == nil {
-		obj.Eth1Data = new(Eth1Data)
-	}
-	if err := obj.Eth1Data.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeBytes(w, obj.Graffiti[:])
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.ProposerSlashings) * 416
-	ssz.EncodeUint32(w, uint32(_o0))
-	for _, _v1 := range obj.AttesterSlashings {
-		_o0 += 4
-		if _v1 == nil {
-			_v1 = new(AttesterSlashing)
-		}
-		_o0 += _v1.SizeSSZ()
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	for _, _v2 := range obj.Attestations {
-		_o0 += 4
-		if _v2 == nil {
-			_v2 = new(Attestation)
-		}
-		_o0 += _v2.SizeSSZ()
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Deposits) * 1240
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.VoluntaryExits) * 112
-	if obj.SyncAggregate == nil {
-		obj.SyncAggregate = new(SyncAggregate)
-	}
-	if err := obj.SyncAggregate.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	for _, _v3 := range obj.ProposerSlashings {
-		if _v3 == nil {
-			_v3 = new(ProposerSlashing)
-		}
-		if err := _v3.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	_o4 := len(obj.AttesterSlashings) * 4
-	for _, _v5 := range obj.AttesterSlashings {
-		ssz.EncodeUint32(w, uint32(_o4))
-		if _v5 == nil {
-			_v5 = new(AttesterSlashing)
-		}
-		_o4 += _v5.SizeSSZ()
-	}
-	for _, _v6 := range obj.AttesterSlashings {
-		if _v6 == nil {
-			_v6 = new(AttesterSlashing)
-		}
-		if err := _v6.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	_o7 := len(obj.Attestations) * 4
-	for _, _v8 := range obj.Attestations {
-		ssz.EncodeUint32(w, uint32(_o7))
-		if _v8 == nil {
-			_v8 = new(Attestation)
-		}
-		_o7 += _v8.SizeSSZ()
-	}
-	for _, _v9 := range obj.Attestations {
-		if _v9 == nil {
-			_v9 = new(Attestation)
-		}
-		if err := _v9.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	for _, _v10 := range obj.Deposits {
-		if _v10 == nil {
-			_v10 = new(Deposit)
-		}
-		if err := _v10.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	for _, _v11 := range obj.VoluntaryExits {
-		if _v11 == nil {
-			_v11 = new(SignedVoluntaryExit)
-		}
-		if err := _v11.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (obj *BeaconBlockBodyAltair) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *BeaconBlockBodyAltair) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
@@ -449,120 +246,116 @@ func (obj *BeaconBlockBodyAltair) UnmarshalSSZ(r []byte) error {
 	if obj.Eth1Data == nil {
 		obj.Eth1Data = new(Eth1Data)
 	}
-	if err := obj.Eth1Data.UnmarshalSSZ(r); err != nil {
+	if err := obj.Eth1Data.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.Graffiti = [32]byte(_v2)
-	r, _v4, _e5 := ssz.DecodeUint32(r)
+	_v4, _e5 := ssz.DecodeUint32(s)
 	if _e5 != nil {
 		return _e5
 	}
-	r, _v6, _e7 := ssz.DecodeUint32(r)
+	_v6, _e7 := ssz.DecodeUint32(s)
 	if _e7 != nil {
 		return _e7
 	}
-	r, _v8, _e9 := ssz.DecodeUint32(r)
+	_v8, _e9 := ssz.DecodeUint32(s)
 	if _e9 != nil {
 		return _e9
 	}
-	r, _v10, _e11 := ssz.DecodeUint32(r)
+	_v10, _e11 := ssz.DecodeUint32(s)
 	if _e11 != nil {
 		return _e11
 	}
-	r, _v12, _e13 := ssz.DecodeUint32(r)
+	_v12, _e13 := ssz.DecodeUint32(s)
 	if _e13 != nil {
 		return _e13
 	}
 	if obj.SyncAggregate == nil {
 		obj.SyncAggregate = new(SyncAggregate)
 	}
-	if err := obj.SyncAggregate.UnmarshalSSZ(r); err != nil {
+	if err := obj.SyncAggregate.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	_r14 := r[_v4:_v6]
-	for _i15 := 0; _i15 < len(obj.ProposerSlashings); _i15 += 1 {
-		if obj.ProposerSlashings[_i15] == nil {
-			obj.ProposerSlashings[_i15] = new(ProposerSlashing)
+	s.Reset(_v4 - _v6)
+	for _i14 := 0; _i14 < len(obj.ProposerSlashings); _i14 += 1 {
+		if obj.ProposerSlashings[_i14] == nil {
+			obj.ProposerSlashings[_i14] = new(ProposerSlashing)
 		}
-		if err := obj.ProposerSlashings[_i15].UnmarshalSSZ(_r14); err != nil {
+		if err := obj.ProposerSlashings[_i14].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r16 := r[_v6:_v8]
-	var (
-		_v18 []uint32
-		_v19 uint32
-		_e20 error
-		_r21 []byte
-	)
+	s.Reset(_v6 - _v8)
 
-	for _i17 := 0; _i17 < len(obj.AttesterSlashings); _i17 += 1 {
-		_r16, _v19, _e20 = ssz.DecodeUint32(_r16)
-		if _e20 != nil {
-			return _e20
-		}
-		_v18 = append(_v18, _v19)
-	}
-	for _i17 := 0; _i17 < len(obj.AttesterSlashings); _i17 += 1 {
-		if _i17 == len(obj.AttesterSlashings)-1 {
-			_r21 = _r16[_v18[_i17]:]
-		} else {
-			_r21 = _r16[_v18[_i17]:_v18[_i17+1]]
-		}
-		if obj.AttesterSlashings[_i17] == nil {
-			obj.AttesterSlashings[_i17] = new(AttesterSlashing)
-		}
-		if err := obj.AttesterSlashings[_i17].UnmarshalSSZ(_r21); err != nil {
-			return err
-		}
-	}
-	_r22 := r[_v8:_v10]
 	var (
-		_v24 []uint32
-		_v25 uint32
-		_e26 error
-		_r27 []byte
+		_v16 []uint32
+		_v17 uint32
+		_e18 error
 	)
-
-	for _i23 := 0; _i23 < len(obj.Attestations); _i23 += 1 {
-		_r22, _v25, _e26 = ssz.DecodeUint32(_r22)
-		if _e26 != nil {
-			return _e26
+	for _i15 := 0; _i15 < len(obj.AttesterSlashings); _i15 += 1 {
+		_v17, _e18 = ssz.DecodeUint32(s)
+		if _e18 != nil {
+			return _e18
 		}
-		_v24 = append(_v24, _v25)
+		_v16 = append(_v16, _v17)
 	}
-	for _i23 := 0; _i23 < len(obj.Attestations); _i23 += 1 {
-		if _i23 == len(obj.Attestations)-1 {
-			_r27 = _r22[_v24[_i23]:]
+	for _i15 := 0; _i15 < len(obj.AttesterSlashings); _i15 += 1 {
+		if _i15 == len(obj.AttesterSlashings)-1 {
 		} else {
-			_r27 = _r22[_v24[_i23]:_v24[_i23+1]]
+			s.Reset(_v16[_i15+1] - _v16[_i15])
 		}
-		if obj.Attestations[_i23] == nil {
-			obj.Attestations[_i23] = new(Attestation)
+		if obj.AttesterSlashings[_i15] == nil {
+			obj.AttesterSlashings[_i15] = new(AttesterSlashing)
 		}
-		if err := obj.Attestations[_i23].UnmarshalSSZ(_r27); err != nil {
+		if err := obj.AttesterSlashings[_i15].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r28 := r[_v10:_v12]
-	for _i29 := 0; _i29 < len(obj.Deposits); _i29 += 1 {
-		if obj.Deposits[_i29] == nil {
-			obj.Deposits[_i29] = new(Deposit)
+	s.Reset(_v8 - _v10)
+
+	var (
+		_v20 []uint32
+		_v21 uint32
+		_e22 error
+	)
+	for _i19 := 0; _i19 < len(obj.Attestations); _i19 += 1 {
+		_v21, _e22 = ssz.DecodeUint32(s)
+		if _e22 != nil {
+			return _e22
 		}
-		if err := obj.Deposits[_i29].UnmarshalSSZ(_r28); err != nil {
+		_v20 = append(_v20, _v21)
+	}
+	for _i19 := 0; _i19 < len(obj.Attestations); _i19 += 1 {
+		if _i19 == len(obj.Attestations)-1 {
+		} else {
+			s.Reset(_v20[_i19+1] - _v20[_i19])
+		}
+		if obj.Attestations[_i19] == nil {
+			obj.Attestations[_i19] = new(Attestation)
+		}
+		if err := obj.Attestations[_i19].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r30 := r[_v12:]
-	for _i31 := 0; _i31 < len(obj.VoluntaryExits); _i31 += 1 {
-		if obj.VoluntaryExits[_i31] == nil {
-			obj.VoluntaryExits[_i31] = new(SignedVoluntaryExit)
+	s.Reset(_v10 - _v12)
+	for _i23 := 0; _i23 < len(obj.Deposits); _i23 += 1 {
+		if obj.Deposits[_i23] == nil {
+			obj.Deposits[_i23] = new(Deposit)
 		}
-		if err := obj.VoluntaryExits[_i31].UnmarshalSSZ(_r30); err != nil {
+		if err := obj.Deposits[_i23].UnmarshalSSZ(s); err != nil {
+			return err
+		}
+	}
+	_ = _v12
+	for _i24 := 0; _i24 < len(obj.VoluntaryExits); _i24 += 1 {
+		if obj.VoluntaryExits[_i24] == nil {
+			obj.VoluntaryExits[_i24] = new(SignedVoluntaryExit)
+		}
+		if err := obj.VoluntaryExits[_i24].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
@@ -579,45 +372,24 @@ func (obj *BeaconBlockBodyBellatrix) SizeSSZ() int {
 	return s
 }
 
-func (obj *BeaconBlockBodyBellatrix) MarshalSSZTo(w []byte) error {
-	_o0 := 8
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += obj.BeaconBlockBodyAltair.SizeSSZ()
-	ssz.EncodeUint32(w, uint32(_o0))
-	if obj.ExecutionPayload == nil {
-		obj.ExecutionPayload = new(ExecutionPayload)
-	}
-	_o0 += obj.ExecutionPayload.SizeSSZ()
-	if err := obj.BeaconBlockBodyAltair.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.ExecutionPayload == nil {
-		obj.ExecutionPayload = new(ExecutionPayload)
-	}
-	if err := obj.ExecutionPayload.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (obj *BeaconBlockBodyBellatrix) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint32(r)
+func (obj *BeaconBlockBodyBellatrix) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint32(s)
 	if _e1 != nil {
 		return _e1
 	}
-	r, _v2, _e3 := ssz.DecodeUint32(r)
+	_v2, _e3 := ssz.DecodeUint32(s)
 	if _e3 != nil {
 		return _e3
 	}
-	_r4 := r[_v0:_v2]
-	if err := obj.BeaconBlockBodyAltair.UnmarshalSSZ(_r4); err != nil {
+	s.Reset(_v0 - _v2)
+	if err := obj.BeaconBlockBodyAltair.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	_r5 := r[_v2:]
+	_ = _v2
 	if obj.ExecutionPayload == nil {
 		obj.ExecutionPayload = new(ExecutionPayload)
 	}
-	if err := obj.ExecutionPayload.UnmarshalSSZ(_r5); err != nil {
+	if err := obj.ExecutionPayload.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	return nil
@@ -650,126 +422,8 @@ func (obj *BeaconBlockBodyCapella) SizeSSZ() int {
 	return s
 }
 
-func (obj *BeaconBlockBodyCapella) MarshalSSZTo(w []byte) error {
-	_o0 := 388
-	ssz.EncodeBytes(w, obj.RandaoReveal)
-	if obj.Eth1Data == nil {
-		obj.Eth1Data = new(Eth1Data)
-	}
-	if err := obj.Eth1Data.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeBytes(w, obj.Graffiti[:])
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.ProposerSlashings) * 416
-	ssz.EncodeUint32(w, uint32(_o0))
-	for _, _v1 := range obj.AttesterSlashings {
-		_o0 += 4
-		if _v1 == nil {
-			_v1 = new(AttesterSlashing)
-		}
-		_o0 += _v1.SizeSSZ()
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	for _, _v2 := range obj.Attestations {
-		_o0 += 4
-		if _v2 == nil {
-			_v2 = new(Attestation)
-		}
-		_o0 += _v2.SizeSSZ()
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Deposits) * 1240
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.VoluntaryExits) * 112
-	if obj.SyncAggregate == nil {
-		obj.SyncAggregate = new(SyncAggregate)
-	}
-	if err := obj.SyncAggregate.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	if obj.ExecutionPayload == nil {
-		obj.ExecutionPayload = new(ExecutionPayloadCapella)
-	}
-	_o0 += obj.ExecutionPayload.SizeSSZ()
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.BlsToExecutionChanges) * 172
-	for _, _v3 := range obj.ProposerSlashings {
-		if _v3 == nil {
-			_v3 = new(ProposerSlashing)
-		}
-		if err := _v3.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	_o4 := len(obj.AttesterSlashings) * 4
-	for _, _v5 := range obj.AttesterSlashings {
-		ssz.EncodeUint32(w, uint32(_o4))
-		if _v5 == nil {
-			_v5 = new(AttesterSlashing)
-		}
-		_o4 += _v5.SizeSSZ()
-	}
-	for _, _v6 := range obj.AttesterSlashings {
-		if _v6 == nil {
-			_v6 = new(AttesterSlashing)
-		}
-		if err := _v6.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	_o7 := len(obj.Attestations) * 4
-	for _, _v8 := range obj.Attestations {
-		ssz.EncodeUint32(w, uint32(_o7))
-		if _v8 == nil {
-			_v8 = new(Attestation)
-		}
-		_o7 += _v8.SizeSSZ()
-	}
-	for _, _v9 := range obj.Attestations {
-		if _v9 == nil {
-			_v9 = new(Attestation)
-		}
-		if err := _v9.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	for _, _v10 := range obj.Deposits {
-		if _v10 == nil {
-			_v10 = new(Deposit)
-		}
-		if err := _v10.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	for _, _v11 := range obj.VoluntaryExits {
-		if _v11 == nil {
-			_v11 = new(SignedVoluntaryExit)
-		}
-		if err := _v11.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	if obj.ExecutionPayload == nil {
-		obj.ExecutionPayload = new(ExecutionPayloadCapella)
-	}
-	if err := obj.ExecutionPayload.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	for _, _v12 := range obj.BlsToExecutionChanges {
-		if _v12 == nil {
-			_v12 = new(SignedBLSToExecutionChange)
-		}
-		if err := _v12.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (obj *BeaconBlockBodyCapella) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *BeaconBlockBodyCapella) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
@@ -777,144 +431,140 @@ func (obj *BeaconBlockBodyCapella) UnmarshalSSZ(r []byte) error {
 	if obj.Eth1Data == nil {
 		obj.Eth1Data = new(Eth1Data)
 	}
-	if err := obj.Eth1Data.UnmarshalSSZ(r); err != nil {
+	if err := obj.Eth1Data.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.Graffiti = [32]byte(_v2)
-	r, _v4, _e5 := ssz.DecodeUint32(r)
+	_v4, _e5 := ssz.DecodeUint32(s)
 	if _e5 != nil {
 		return _e5
 	}
-	r, _v6, _e7 := ssz.DecodeUint32(r)
+	_v6, _e7 := ssz.DecodeUint32(s)
 	if _e7 != nil {
 		return _e7
 	}
-	r, _v8, _e9 := ssz.DecodeUint32(r)
+	_v8, _e9 := ssz.DecodeUint32(s)
 	if _e9 != nil {
 		return _e9
 	}
-	r, _v10, _e11 := ssz.DecodeUint32(r)
+	_v10, _e11 := ssz.DecodeUint32(s)
 	if _e11 != nil {
 		return _e11
 	}
-	r, _v12, _e13 := ssz.DecodeUint32(r)
+	_v12, _e13 := ssz.DecodeUint32(s)
 	if _e13 != nil {
 		return _e13
 	}
 	if obj.SyncAggregate == nil {
 		obj.SyncAggregate = new(SyncAggregate)
 	}
-	if err := obj.SyncAggregate.UnmarshalSSZ(r); err != nil {
+	if err := obj.SyncAggregate.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v14, _e15 := ssz.DecodeUint32(r)
+	_v14, _e15 := ssz.DecodeUint32(s)
 	if _e15 != nil {
 		return _e15
 	}
-	r, _v16, _e17 := ssz.DecodeUint32(r)
+	_v16, _e17 := ssz.DecodeUint32(s)
 	if _e17 != nil {
 		return _e17
 	}
-	_r18 := r[_v4:_v6]
-	for _i19 := 0; _i19 < len(obj.ProposerSlashings); _i19 += 1 {
-		if obj.ProposerSlashings[_i19] == nil {
-			obj.ProposerSlashings[_i19] = new(ProposerSlashing)
+	s.Reset(_v4 - _v6)
+	for _i18 := 0; _i18 < len(obj.ProposerSlashings); _i18 += 1 {
+		if obj.ProposerSlashings[_i18] == nil {
+			obj.ProposerSlashings[_i18] = new(ProposerSlashing)
 		}
-		if err := obj.ProposerSlashings[_i19].UnmarshalSSZ(_r18); err != nil {
+		if err := obj.ProposerSlashings[_i18].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r20 := r[_v6:_v8]
-	var (
-		_v22 []uint32
-		_v23 uint32
-		_e24 error
-		_r25 []byte
-	)
+	s.Reset(_v6 - _v8)
 
-	for _i21 := 0; _i21 < len(obj.AttesterSlashings); _i21 += 1 {
-		_r20, _v23, _e24 = ssz.DecodeUint32(_r20)
-		if _e24 != nil {
-			return _e24
-		}
-		_v22 = append(_v22, _v23)
-	}
-	for _i21 := 0; _i21 < len(obj.AttesterSlashings); _i21 += 1 {
-		if _i21 == len(obj.AttesterSlashings)-1 {
-			_r25 = _r20[_v22[_i21]:]
-		} else {
-			_r25 = _r20[_v22[_i21]:_v22[_i21+1]]
-		}
-		if obj.AttesterSlashings[_i21] == nil {
-			obj.AttesterSlashings[_i21] = new(AttesterSlashing)
-		}
-		if err := obj.AttesterSlashings[_i21].UnmarshalSSZ(_r25); err != nil {
-			return err
-		}
-	}
-	_r26 := r[_v8:_v10]
 	var (
-		_v28 []uint32
-		_v29 uint32
-		_e30 error
-		_r31 []byte
+		_v20 []uint32
+		_v21 uint32
+		_e22 error
 	)
-
-	for _i27 := 0; _i27 < len(obj.Attestations); _i27 += 1 {
-		_r26, _v29, _e30 = ssz.DecodeUint32(_r26)
-		if _e30 != nil {
-			return _e30
+	for _i19 := 0; _i19 < len(obj.AttesterSlashings); _i19 += 1 {
+		_v21, _e22 = ssz.DecodeUint32(s)
+		if _e22 != nil {
+			return _e22
 		}
-		_v28 = append(_v28, _v29)
+		_v20 = append(_v20, _v21)
 	}
-	for _i27 := 0; _i27 < len(obj.Attestations); _i27 += 1 {
-		if _i27 == len(obj.Attestations)-1 {
-			_r31 = _r26[_v28[_i27]:]
+	for _i19 := 0; _i19 < len(obj.AttesterSlashings); _i19 += 1 {
+		if _i19 == len(obj.AttesterSlashings)-1 {
 		} else {
-			_r31 = _r26[_v28[_i27]:_v28[_i27+1]]
+			s.Reset(_v20[_i19+1] - _v20[_i19])
 		}
-		if obj.Attestations[_i27] == nil {
-			obj.Attestations[_i27] = new(Attestation)
+		if obj.AttesterSlashings[_i19] == nil {
+			obj.AttesterSlashings[_i19] = new(AttesterSlashing)
 		}
-		if err := obj.Attestations[_i27].UnmarshalSSZ(_r31); err != nil {
+		if err := obj.AttesterSlashings[_i19].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r32 := r[_v10:_v12]
-	for _i33 := 0; _i33 < len(obj.Deposits); _i33 += 1 {
-		if obj.Deposits[_i33] == nil {
-			obj.Deposits[_i33] = new(Deposit)
+	s.Reset(_v8 - _v10)
+
+	var (
+		_v24 []uint32
+		_v25 uint32
+		_e26 error
+	)
+	for _i23 := 0; _i23 < len(obj.Attestations); _i23 += 1 {
+		_v25, _e26 = ssz.DecodeUint32(s)
+		if _e26 != nil {
+			return _e26
 		}
-		if err := obj.Deposits[_i33].UnmarshalSSZ(_r32); err != nil {
+		_v24 = append(_v24, _v25)
+	}
+	for _i23 := 0; _i23 < len(obj.Attestations); _i23 += 1 {
+		if _i23 == len(obj.Attestations)-1 {
+		} else {
+			s.Reset(_v24[_i23+1] - _v24[_i23])
+		}
+		if obj.Attestations[_i23] == nil {
+			obj.Attestations[_i23] = new(Attestation)
+		}
+		if err := obj.Attestations[_i23].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r34 := r[_v12:_v14]
-	for _i35 := 0; _i35 < len(obj.VoluntaryExits); _i35 += 1 {
-		if obj.VoluntaryExits[_i35] == nil {
-			obj.VoluntaryExits[_i35] = new(SignedVoluntaryExit)
+	s.Reset(_v10 - _v12)
+	for _i27 := 0; _i27 < len(obj.Deposits); _i27 += 1 {
+		if obj.Deposits[_i27] == nil {
+			obj.Deposits[_i27] = new(Deposit)
 		}
-		if err := obj.VoluntaryExits[_i35].UnmarshalSSZ(_r34); err != nil {
+		if err := obj.Deposits[_i27].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r36 := r[_v14:_v16]
+	s.Reset(_v12 - _v14)
+	for _i28 := 0; _i28 < len(obj.VoluntaryExits); _i28 += 1 {
+		if obj.VoluntaryExits[_i28] == nil {
+			obj.VoluntaryExits[_i28] = new(SignedVoluntaryExit)
+		}
+		if err := obj.VoluntaryExits[_i28].UnmarshalSSZ(s); err != nil {
+			return err
+		}
+	}
+	s.Reset(_v14 - _v16)
 	if obj.ExecutionPayload == nil {
 		obj.ExecutionPayload = new(ExecutionPayloadCapella)
 	}
-	if err := obj.ExecutionPayload.UnmarshalSSZ(_r36); err != nil {
+	if err := obj.ExecutionPayload.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	_r37 := r[_v16:]
-	for _i38 := 0; _i38 < len(obj.BlsToExecutionChanges); _i38 += 1 {
-		if obj.BlsToExecutionChanges[_i38] == nil {
-			obj.BlsToExecutionChanges[_i38] = new(SignedBLSToExecutionChange)
+	_ = _v16
+	for _i29 := 0; _i29 < len(obj.BlsToExecutionChanges); _i29 += 1 {
+		if obj.BlsToExecutionChanges[_i29] == nil {
+			obj.BlsToExecutionChanges[_i29] = new(SignedBLSToExecutionChange)
 		}
-		if err := obj.BlsToExecutionChanges[_i38].UnmarshalSSZ(_r37); err != nil {
+		if err := obj.BlsToExecutionChanges[_i29].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
@@ -943,99 +593,8 @@ func (obj *BeaconBlockBodyPhase0) SizeSSZ() int {
 	return s
 }
 
-func (obj *BeaconBlockBodyPhase0) MarshalSSZTo(w []byte) error {
-	_o0 := 220
-	ssz.EncodeBytes(w, obj.RandaoReveal)
-	if obj.Eth1Data == nil {
-		obj.Eth1Data = new(Eth1Data)
-	}
-	if err := obj.Eth1Data.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeBytes(w, obj.Graffiti[:])
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.ProposerSlashings) * 416
-	ssz.EncodeUint32(w, uint32(_o0))
-	for _, _v1 := range obj.AttesterSlashings {
-		_o0 += 4
-		if _v1 == nil {
-			_v1 = new(AttesterSlashing)
-		}
-		_o0 += _v1.SizeSSZ()
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	for _, _v2 := range obj.Attestations {
-		_o0 += 4
-		if _v2 == nil {
-			_v2 = new(Attestation)
-		}
-		_o0 += _v2.SizeSSZ()
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Deposits) * 1240
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.VoluntaryExits) * 112
-	for _, _v3 := range obj.ProposerSlashings {
-		if _v3 == nil {
-			_v3 = new(ProposerSlashing)
-		}
-		if err := _v3.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	_o4 := len(obj.AttesterSlashings) * 4
-	for _, _v5 := range obj.AttesterSlashings {
-		ssz.EncodeUint32(w, uint32(_o4))
-		if _v5 == nil {
-			_v5 = new(AttesterSlashing)
-		}
-		_o4 += _v5.SizeSSZ()
-	}
-	for _, _v6 := range obj.AttesterSlashings {
-		if _v6 == nil {
-			_v6 = new(AttesterSlashing)
-		}
-		if err := _v6.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	_o7 := len(obj.Attestations) * 4
-	for _, _v8 := range obj.Attestations {
-		ssz.EncodeUint32(w, uint32(_o7))
-		if _v8 == nil {
-			_v8 = new(Attestation)
-		}
-		_o7 += _v8.SizeSSZ()
-	}
-	for _, _v9 := range obj.Attestations {
-		if _v9 == nil {
-			_v9 = new(Attestation)
-		}
-		if err := _v9.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	for _, _v10 := range obj.Deposits {
-		if _v10 == nil {
-			_v10 = new(Deposit)
-		}
-		if err := _v10.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	for _, _v11 := range obj.VoluntaryExits {
-		if _v11 == nil {
-			_v11 = new(SignedVoluntaryExit)
-		}
-		if err := _v11.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (obj *BeaconBlockBodyPhase0) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *BeaconBlockBodyPhase0) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
@@ -1043,114 +602,110 @@ func (obj *BeaconBlockBodyPhase0) UnmarshalSSZ(r []byte) error {
 	if obj.Eth1Data == nil {
 		obj.Eth1Data = new(Eth1Data)
 	}
-	if err := obj.Eth1Data.UnmarshalSSZ(r); err != nil {
+	if err := obj.Eth1Data.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.Graffiti = [32]byte(_v2)
-	r, _v4, _e5 := ssz.DecodeUint32(r)
+	_v4, _e5 := ssz.DecodeUint32(s)
 	if _e5 != nil {
 		return _e5
 	}
-	r, _v6, _e7 := ssz.DecodeUint32(r)
+	_v6, _e7 := ssz.DecodeUint32(s)
 	if _e7 != nil {
 		return _e7
 	}
-	r, _v8, _e9 := ssz.DecodeUint32(r)
+	_v8, _e9 := ssz.DecodeUint32(s)
 	if _e9 != nil {
 		return _e9
 	}
-	r, _v10, _e11 := ssz.DecodeUint32(r)
+	_v10, _e11 := ssz.DecodeUint32(s)
 	if _e11 != nil {
 		return _e11
 	}
-	r, _v12, _e13 := ssz.DecodeUint32(r)
+	_v12, _e13 := ssz.DecodeUint32(s)
 	if _e13 != nil {
 		return _e13
 	}
-	_r14 := r[_v4:_v6]
-	for _i15 := 0; _i15 < len(obj.ProposerSlashings); _i15 += 1 {
-		if obj.ProposerSlashings[_i15] == nil {
-			obj.ProposerSlashings[_i15] = new(ProposerSlashing)
+	s.Reset(_v4 - _v6)
+	for _i14 := 0; _i14 < len(obj.ProposerSlashings); _i14 += 1 {
+		if obj.ProposerSlashings[_i14] == nil {
+			obj.ProposerSlashings[_i14] = new(ProposerSlashing)
 		}
-		if err := obj.ProposerSlashings[_i15].UnmarshalSSZ(_r14); err != nil {
+		if err := obj.ProposerSlashings[_i14].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r16 := r[_v6:_v8]
-	var (
-		_v18 []uint32
-		_v19 uint32
-		_e20 error
-		_r21 []byte
-	)
+	s.Reset(_v6 - _v8)
 
-	for _i17 := 0; _i17 < len(obj.AttesterSlashings); _i17 += 1 {
-		_r16, _v19, _e20 = ssz.DecodeUint32(_r16)
-		if _e20 != nil {
-			return _e20
-		}
-		_v18 = append(_v18, _v19)
-	}
-	for _i17 := 0; _i17 < len(obj.AttesterSlashings); _i17 += 1 {
-		if _i17 == len(obj.AttesterSlashings)-1 {
-			_r21 = _r16[_v18[_i17]:]
-		} else {
-			_r21 = _r16[_v18[_i17]:_v18[_i17+1]]
-		}
-		if obj.AttesterSlashings[_i17] == nil {
-			obj.AttesterSlashings[_i17] = new(AttesterSlashing)
-		}
-		if err := obj.AttesterSlashings[_i17].UnmarshalSSZ(_r21); err != nil {
-			return err
-		}
-	}
-	_r22 := r[_v8:_v10]
 	var (
-		_v24 []uint32
-		_v25 uint32
-		_e26 error
-		_r27 []byte
+		_v16 []uint32
+		_v17 uint32
+		_e18 error
 	)
-
-	for _i23 := 0; _i23 < len(obj.Attestations); _i23 += 1 {
-		_r22, _v25, _e26 = ssz.DecodeUint32(_r22)
-		if _e26 != nil {
-			return _e26
+	for _i15 := 0; _i15 < len(obj.AttesterSlashings); _i15 += 1 {
+		_v17, _e18 = ssz.DecodeUint32(s)
+		if _e18 != nil {
+			return _e18
 		}
-		_v24 = append(_v24, _v25)
+		_v16 = append(_v16, _v17)
 	}
-	for _i23 := 0; _i23 < len(obj.Attestations); _i23 += 1 {
-		if _i23 == len(obj.Attestations)-1 {
-			_r27 = _r22[_v24[_i23]:]
+	for _i15 := 0; _i15 < len(obj.AttesterSlashings); _i15 += 1 {
+		if _i15 == len(obj.AttesterSlashings)-1 {
 		} else {
-			_r27 = _r22[_v24[_i23]:_v24[_i23+1]]
+			s.Reset(_v16[_i15+1] - _v16[_i15])
 		}
-		if obj.Attestations[_i23] == nil {
-			obj.Attestations[_i23] = new(Attestation)
+		if obj.AttesterSlashings[_i15] == nil {
+			obj.AttesterSlashings[_i15] = new(AttesterSlashing)
 		}
-		if err := obj.Attestations[_i23].UnmarshalSSZ(_r27); err != nil {
+		if err := obj.AttesterSlashings[_i15].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r28 := r[_v10:_v12]
-	for _i29 := 0; _i29 < len(obj.Deposits); _i29 += 1 {
-		if obj.Deposits[_i29] == nil {
-			obj.Deposits[_i29] = new(Deposit)
+	s.Reset(_v8 - _v10)
+
+	var (
+		_v20 []uint32
+		_v21 uint32
+		_e22 error
+	)
+	for _i19 := 0; _i19 < len(obj.Attestations); _i19 += 1 {
+		_v21, _e22 = ssz.DecodeUint32(s)
+		if _e22 != nil {
+			return _e22
 		}
-		if err := obj.Deposits[_i29].UnmarshalSSZ(_r28); err != nil {
+		_v20 = append(_v20, _v21)
+	}
+	for _i19 := 0; _i19 < len(obj.Attestations); _i19 += 1 {
+		if _i19 == len(obj.Attestations)-1 {
+		} else {
+			s.Reset(_v20[_i19+1] - _v20[_i19])
+		}
+		if obj.Attestations[_i19] == nil {
+			obj.Attestations[_i19] = new(Attestation)
+		}
+		if err := obj.Attestations[_i19].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r30 := r[_v12:]
-	for _i31 := 0; _i31 < len(obj.VoluntaryExits); _i31 += 1 {
-		if obj.VoluntaryExits[_i31] == nil {
-			obj.VoluntaryExits[_i31] = new(SignedVoluntaryExit)
+	s.Reset(_v10 - _v12)
+	for _i23 := 0; _i23 < len(obj.Deposits); _i23 += 1 {
+		if obj.Deposits[_i23] == nil {
+			obj.Deposits[_i23] = new(Deposit)
 		}
-		if err := obj.VoluntaryExits[_i31].UnmarshalSSZ(_r30); err != nil {
+		if err := obj.Deposits[_i23].UnmarshalSSZ(s); err != nil {
+			return err
+		}
+	}
+	_ = _v12
+	for _i24 := 0; _i24 < len(obj.VoluntaryExits); _i24 += 1 {
+		if obj.VoluntaryExits[_i24] == nil {
+			obj.VoluntaryExits[_i24] = new(SignedVoluntaryExit)
+		}
+		if err := obj.VoluntaryExits[_i24].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
@@ -1166,56 +721,36 @@ func (obj *BeaconBlockCapella) SizeSSZ() int {
 	return s
 }
 
-func (obj *BeaconBlockCapella) MarshalSSZTo(w []byte) error {
-	_o0 := 84
-	ssz.EncodeUint64(w, obj.Slot)
-	ssz.EncodeUint64(w, obj.ProposerIndex)
-	ssz.EncodeBytes(w, obj.ParentRoot[:])
-	ssz.EncodeBytes(w, obj.StateRoot[:])
-	ssz.EncodeUint32(w, uint32(_o0))
-	if obj.Body == nil {
-		obj.Body = new(BeaconBlockBodyCapella)
-	}
-	_o0 += obj.Body.SizeSSZ()
-	if obj.Body == nil {
-		obj.Body = new(BeaconBlockBodyCapella)
-	}
-	if err := obj.Body.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (obj *BeaconBlockCapella) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *BeaconBlockCapella) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.Slot = _v0
-	r, _v2, _e3 := ssz.DecodeUint64(r)
+	_v2, _e3 := ssz.DecodeUint64(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.ProposerIndex = _v2
-	r, _v4, _e5 := ssz.DecodeBytes(r)
+	_v4, _e5 := ssz.DecodeBytes(s)
 	if _e5 != nil {
 		return _e5
 	}
 	obj.ParentRoot = [32]byte(_v4)
-	r, _v6, _e7 := ssz.DecodeBytes(r)
+	_v6, _e7 := ssz.DecodeBytes(s)
 	if _e7 != nil {
 		return _e7
 	}
 	obj.StateRoot = [32]byte(_v6)
-	r, _v8, _e9 := ssz.DecodeUint32(r)
+	_v8, _e9 := ssz.DecodeUint32(s)
 	if _e9 != nil {
 		return _e9
 	}
-	_r10 := r[_v8:]
+	_ = _v8
 	if obj.Body == nil {
 		obj.Body = new(BeaconBlockBodyCapella)
 	}
-	if err := obj.Body.UnmarshalSSZ(_r10); err != nil {
+	if err := obj.Body.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	return nil
@@ -1226,37 +761,28 @@ func (obj *BeaconBlockHeader) SizeSSZ() int {
 	return s
 }
 
-func (obj *BeaconBlockHeader) MarshalSSZTo(w []byte) error {
-	ssz.EncodeUint64(w, obj.Slot)
-	ssz.EncodeUint64(w, obj.ProposerIndex)
-	ssz.EncodeBytes(w, obj.ParentRoot)
-	ssz.EncodeBytes(w, obj.StateRoot)
-	ssz.EncodeBytes(w, obj.BodyRoot)
-	return nil
-}
-
-func (obj *BeaconBlockHeader) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *BeaconBlockHeader) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.Slot = _v0
-	r, _v2, _e3 := ssz.DecodeUint64(r)
+	_v2, _e3 := ssz.DecodeUint64(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.ProposerIndex = _v2
-	r, _v4, _e5 := ssz.DecodeBytes(r)
+	_v4, _e5 := ssz.DecodeBytes(s)
 	if _e5 != nil {
 		return _e5
 	}
 	obj.ParentRoot = _v4
-	r, _v6, _e7 := ssz.DecodeBytes(r)
+	_v6, _e7 := ssz.DecodeBytes(s)
 	if _e7 != nil {
 		return _e7
 	}
 	obj.StateRoot = _v6
-	r, _v8, _e9 := ssz.DecodeBytes(r)
+	_v8, _e9 := ssz.DecodeBytes(s)
 	if _e9 != nil {
 		return _e9
 	}
@@ -1287,150 +813,18 @@ func (obj *BeaconState) SizeSSZ() int {
 	return s
 }
 
-func (obj *BeaconState) MarshalSSZTo(w []byte) error {
-	_o0 := 2687377
-	ssz.EncodeUint64(w, obj.GenesisTime)
-	ssz.EncodeBytes(w, obj.GenesisValidatorsRoot)
-	ssz.EncodeUint64(w, obj.Slot)
-	if obj.Fork == nil {
-		obj.Fork = new(Fork)
-	}
-	if err := obj.Fork.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.LatestBlockHeader == nil {
-		obj.LatestBlockHeader = new(BeaconBlockHeader)
-	}
-	if err := obj.LatestBlockHeader.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	for _, _v1 := range obj.BlockRoots {
-		ssz.EncodeBytes(w, _v1)
-	}
-	for _, _v2 := range obj.StateRoots {
-		ssz.EncodeBytes(w, _v2)
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.HistoricalRoots) * 32
-	if obj.Eth1Data == nil {
-		obj.Eth1Data = new(Eth1Data)
-	}
-	if err := obj.Eth1Data.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Eth1DataVotes) * 72
-	ssz.EncodeUint64(w, obj.Eth1DepositIndex)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Validators) * 121
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Balances) * 8
-	for _, _v3 := range obj.RandaoMixes {
-		ssz.EncodeBytes(w, _v3)
-	}
-	ssz.EncodeUint64s(w, obj.Slashings)
-	ssz.EncodeUint32(w, uint32(_o0))
-	for _, _v4 := range obj.PreviousEpochAttestations {
-		_o0 += 4
-		if _v4 == nil {
-			_v4 = new(PendingAttestation)
-		}
-		_o0 += _v4.SizeSSZ()
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	for _, _v5 := range obj.CurrentEpochAttestations {
-		_o0 += 4
-		if _v5 == nil {
-			_v5 = new(PendingAttestation)
-		}
-		_o0 += _v5.SizeSSZ()
-	}
-	ssz.EncodeBytes(w, obj.JustificationBits)
-	if obj.PreviousJustifiedCheckpoint == nil {
-		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
-	}
-	if err := obj.PreviousJustifiedCheckpoint.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.CurrentJustifiedCheckpoint == nil {
-		obj.CurrentJustifiedCheckpoint = new(Checkpoint)
-	}
-	if err := obj.CurrentJustifiedCheckpoint.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.FinalizedCheckpoint == nil {
-		obj.FinalizedCheckpoint = new(Checkpoint)
-	}
-	if err := obj.FinalizedCheckpoint.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	for _, _v6 := range obj.HistoricalRoots {
-		ssz.EncodeBytes(w, _v6)
-	}
-	for _, _v7 := range obj.Eth1DataVotes {
-		if _v7 == nil {
-			_v7 = new(Eth1Data)
-		}
-		if err := _v7.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	for _, _v8 := range obj.Validators {
-		if _v8 == nil {
-			_v8 = new(Validator)
-		}
-		if err := _v8.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	ssz.EncodeUint64s(w, obj.Balances)
-	_o9 := len(obj.PreviousEpochAttestations) * 4
-	for _, _v10 := range obj.PreviousEpochAttestations {
-		ssz.EncodeUint32(w, uint32(_o9))
-		if _v10 == nil {
-			_v10 = new(PendingAttestation)
-		}
-		_o9 += _v10.SizeSSZ()
-	}
-	for _, _v11 := range obj.PreviousEpochAttestations {
-		if _v11 == nil {
-			_v11 = new(PendingAttestation)
-		}
-		if err := _v11.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	_o12 := len(obj.CurrentEpochAttestations) * 4
-	for _, _v13 := range obj.CurrentEpochAttestations {
-		ssz.EncodeUint32(w, uint32(_o12))
-		if _v13 == nil {
-			_v13 = new(PendingAttestation)
-		}
-		_o12 += _v13.SizeSSZ()
-	}
-	for _, _v14 := range obj.CurrentEpochAttestations {
-		if _v14 == nil {
-			_v14 = new(PendingAttestation)
-		}
-		if err := _v14.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (obj *BeaconState) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *BeaconState) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.GenesisTime = _v0
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.GenesisValidatorsRoot = _v2
-	r, _v4, _e5 := ssz.DecodeUint64(r)
+	_v4, _e5 := ssz.DecodeUint64(s)
 	if _e5 != nil {
 		return _e5
 	}
@@ -1438,77 +832,77 @@ func (obj *BeaconState) UnmarshalSSZ(r []byte) error {
 	if obj.Fork == nil {
 		obj.Fork = new(Fork)
 	}
-	if err := obj.Fork.UnmarshalSSZ(r); err != nil {
+	if err := obj.Fork.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.LatestBlockHeader == nil {
 		obj.LatestBlockHeader = new(BeaconBlockHeader)
 	}
-	if err := obj.LatestBlockHeader.UnmarshalSSZ(r); err != nil {
+	if err := obj.LatestBlockHeader.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	for _i6 := 0; _i6 < len(obj.BlockRoots); _i6 += 1 {
-		r, _v7, _e8 := ssz.DecodeBytes(r)
+		_v7, _e8 := ssz.DecodeBytes(s)
 		if _e8 != nil {
 			return _e8
 		}
 		obj.BlockRoots[_i6] = _v7
 	}
 	for _i9 := 0; _i9 < len(obj.StateRoots); _i9 += 1 {
-		r, _v10, _e11 := ssz.DecodeBytes(r)
+		_v10, _e11 := ssz.DecodeBytes(s)
 		if _e11 != nil {
 			return _e11
 		}
 		obj.StateRoots[_i9] = _v10
 	}
-	r, _v12, _e13 := ssz.DecodeUint32(r)
+	_v12, _e13 := ssz.DecodeUint32(s)
 	if _e13 != nil {
 		return _e13
 	}
 	if obj.Eth1Data == nil {
 		obj.Eth1Data = new(Eth1Data)
 	}
-	if err := obj.Eth1Data.UnmarshalSSZ(r); err != nil {
+	if err := obj.Eth1Data.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v14, _e15 := ssz.DecodeUint32(r)
+	_v14, _e15 := ssz.DecodeUint32(s)
 	if _e15 != nil {
 		return _e15
 	}
-	r, _v16, _e17 := ssz.DecodeUint64(r)
+	_v16, _e17 := ssz.DecodeUint64(s)
 	if _e17 != nil {
 		return _e17
 	}
 	obj.Eth1DepositIndex = _v16
-	r, _v18, _e19 := ssz.DecodeUint32(r)
+	_v18, _e19 := ssz.DecodeUint32(s)
 	if _e19 != nil {
 		return _e19
 	}
-	r, _v20, _e21 := ssz.DecodeUint32(r)
+	_v20, _e21 := ssz.DecodeUint32(s)
 	if _e21 != nil {
 		return _e21
 	}
 	for _i22 := 0; _i22 < len(obj.RandaoMixes); _i22 += 1 {
-		r, _v23, _e24 := ssz.DecodeBytes(r)
+		_v23, _e24 := ssz.DecodeBytes(s)
 		if _e24 != nil {
 			return _e24
 		}
 		obj.RandaoMixes[_i22] = _v23
 	}
-	r, _v25, _e26 := ssz.DecodeUint64s(r)
+	_v25, _e26 := ssz.DecodeUint64s(s)
 	if _e26 != nil {
 		return _e26
 	}
 	obj.Slashings = _v25
-	r, _v27, _e28 := ssz.DecodeUint32(r)
+	_v27, _e28 := ssz.DecodeUint32(s)
 	if _e28 != nil {
 		return _e28
 	}
-	r, _v29, _e30 := ssz.DecodeUint32(r)
+	_v29, _e30 := ssz.DecodeUint32(s)
 	if _e30 != nil {
 		return _e30
 	}
-	r, _v31, _e32 := ssz.DecodeBytes(r)
+	_v31, _e32 := ssz.DecodeBytes(s)
 	if _e32 != nil {
 		return _e32
 	}
@@ -1516,106 +910,102 @@ func (obj *BeaconState) UnmarshalSSZ(r []byte) error {
 	if obj.PreviousJustifiedCheckpoint == nil {
 		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
 	}
-	if err := obj.PreviousJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+	if err := obj.PreviousJustifiedCheckpoint.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.CurrentJustifiedCheckpoint == nil {
 		obj.CurrentJustifiedCheckpoint = new(Checkpoint)
 	}
-	if err := obj.CurrentJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+	if err := obj.CurrentJustifiedCheckpoint.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.FinalizedCheckpoint == nil {
 		obj.FinalizedCheckpoint = new(Checkpoint)
 	}
-	if err := obj.FinalizedCheckpoint.UnmarshalSSZ(r); err != nil {
+	if err := obj.FinalizedCheckpoint.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	_r33 := r[_v12:_v14]
-	for _i34 := 0; _i34 < len(obj.HistoricalRoots); _i34 += 1 {
-		_r33, _v35, _e36 := ssz.DecodeBytes(_r33)
-		if _e36 != nil {
-			return _e36
+	s.Reset(_v12 - _v14)
+	for _i33 := 0; _i33 < len(obj.HistoricalRoots); _i33 += 1 {
+		_v34, _e35 := ssz.DecodeBytes(s)
+		if _e35 != nil {
+			return _e35
 		}
-		obj.HistoricalRoots[_i34] = _v35
+		obj.HistoricalRoots[_i33] = _v34
 	}
-	_r37 := r[_v14:_v18]
-	for _i38 := 0; _i38 < len(obj.Eth1DataVotes); _i38 += 1 {
-		if obj.Eth1DataVotes[_i38] == nil {
-			obj.Eth1DataVotes[_i38] = new(Eth1Data)
+	s.Reset(_v14 - _v18)
+	for _i36 := 0; _i36 < len(obj.Eth1DataVotes); _i36 += 1 {
+		if obj.Eth1DataVotes[_i36] == nil {
+			obj.Eth1DataVotes[_i36] = new(Eth1Data)
 		}
-		if err := obj.Eth1DataVotes[_i38].UnmarshalSSZ(_r37); err != nil {
+		if err := obj.Eth1DataVotes[_i36].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r39 := r[_v18:_v20]
-	for _i40 := 0; _i40 < len(obj.Validators); _i40 += 1 {
-		if obj.Validators[_i40] == nil {
-			obj.Validators[_i40] = new(Validator)
+	s.Reset(_v18 - _v20)
+	for _i37 := 0; _i37 < len(obj.Validators); _i37 += 1 {
+		if obj.Validators[_i37] == nil {
+			obj.Validators[_i37] = new(Validator)
 		}
-		if err := obj.Validators[_i40].UnmarshalSSZ(_r39); err != nil {
+		if err := obj.Validators[_i37].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r41 := r[_v20:_v27]
-	_r41, _v42, _e43 := ssz.DecodeUint64s(_r41)
-	if _e43 != nil {
-		return _e43
+	s.Reset(_v20 - _v27)
+	_v38, _e39 := ssz.DecodeUint64s(s)
+	if _e39 != nil {
+		return _e39
 	}
-	obj.Balances = _v42
-	_r44 := r[_v27:_v29]
-	var (
-		_v46 []uint32
-		_v47 uint32
-		_e48 error
-		_r49 []byte
-	)
+	obj.Balances = _v38
+	s.Reset(_v27 - _v29)
 
-	for _i45 := 0; _i45 < len(obj.PreviousEpochAttestations); _i45 += 1 {
-		_r44, _v47, _e48 = ssz.DecodeUint32(_r44)
-		if _e48 != nil {
-			return _e48
+	var (
+		_v41 []uint32
+		_v42 uint32
+		_e43 error
+	)
+	for _i40 := 0; _i40 < len(obj.PreviousEpochAttestations); _i40 += 1 {
+		_v42, _e43 = ssz.DecodeUint32(s)
+		if _e43 != nil {
+			return _e43
 		}
-		_v46 = append(_v46, _v47)
+		_v41 = append(_v41, _v42)
 	}
-	for _i45 := 0; _i45 < len(obj.PreviousEpochAttestations); _i45 += 1 {
-		if _i45 == len(obj.PreviousEpochAttestations)-1 {
-			_r49 = _r44[_v46[_i45]:]
+	for _i40 := 0; _i40 < len(obj.PreviousEpochAttestations); _i40 += 1 {
+		if _i40 == len(obj.PreviousEpochAttestations)-1 {
 		} else {
-			_r49 = _r44[_v46[_i45]:_v46[_i45+1]]
+			s.Reset(_v41[_i40+1] - _v41[_i40])
 		}
-		if obj.PreviousEpochAttestations[_i45] == nil {
-			obj.PreviousEpochAttestations[_i45] = new(PendingAttestation)
+		if obj.PreviousEpochAttestations[_i40] == nil {
+			obj.PreviousEpochAttestations[_i40] = new(PendingAttestation)
 		}
-		if err := obj.PreviousEpochAttestations[_i45].UnmarshalSSZ(_r49); err != nil {
+		if err := obj.PreviousEpochAttestations[_i40].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r50 := r[_v29:]
-	var (
-		_v52 []uint32
-		_v53 uint32
-		_e54 error
-		_r55 []byte
-	)
+	_ = _v29
 
-	for _i51 := 0; _i51 < len(obj.CurrentEpochAttestations); _i51 += 1 {
-		_r50, _v53, _e54 = ssz.DecodeUint32(_r50)
-		if _e54 != nil {
-			return _e54
+	var (
+		_v45 []uint32
+		_v46 uint32
+		_e47 error
+	)
+	for _i44 := 0; _i44 < len(obj.CurrentEpochAttestations); _i44 += 1 {
+		_v46, _e47 = ssz.DecodeUint32(s)
+		if _e47 != nil {
+			return _e47
 		}
-		_v52 = append(_v52, _v53)
+		_v45 = append(_v45, _v46)
 	}
-	for _i51 := 0; _i51 < len(obj.CurrentEpochAttestations); _i51 += 1 {
-		if _i51 == len(obj.CurrentEpochAttestations)-1 {
-			_r55 = _r50[_v52[_i51]:]
+	for _i44 := 0; _i44 < len(obj.CurrentEpochAttestations); _i44 += 1 {
+		if _i44 == len(obj.CurrentEpochAttestations)-1 {
 		} else {
-			_r55 = _r50[_v52[_i51]:_v52[_i51+1]]
+			s.Reset(_v45[_i44+1] - _v45[_i44])
 		}
-		if obj.CurrentEpochAttestations[_i51] == nil {
-			obj.CurrentEpochAttestations[_i51] = new(PendingAttestation)
+		if obj.CurrentEpochAttestations[_i44] == nil {
+			obj.CurrentEpochAttestations[_i44] = new(PendingAttestation)
 		}
-		if err := obj.CurrentEpochAttestations[_i51].UnmarshalSSZ(_r55); err != nil {
+		if err := obj.CurrentEpochAttestations[_i44].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
@@ -1634,123 +1024,18 @@ func (obj *BeaconStateAltair) SizeSSZ() int {
 	return s
 }
 
-func (obj *BeaconStateAltair) MarshalSSZTo(w []byte) error {
-	_o0 := 2736629
-	ssz.EncodeUint64(w, obj.GenesisTime)
-	ssz.EncodeBytes(w, obj.GenesisValidatorsRoot)
-	ssz.EncodeUint64(w, obj.Slot)
-	if obj.Fork == nil {
-		obj.Fork = new(Fork)
-	}
-	if err := obj.Fork.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.LatestBlockHeader == nil {
-		obj.LatestBlockHeader = new(BeaconBlockHeader)
-	}
-	if err := obj.LatestBlockHeader.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	for _, _v1 := range obj.BlockRoots {
-		ssz.EncodeBytes(w, _v1)
-	}
-	for _, _v2 := range obj.StateRoots {
-		ssz.EncodeBytes(w, _v2)
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.HistoricalRoots) * 32
-	if obj.Eth1Data == nil {
-		obj.Eth1Data = new(Eth1Data)
-	}
-	if err := obj.Eth1Data.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Eth1DataVotes) * 72
-	ssz.EncodeUint64(w, obj.Eth1DepositIndex)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Validators) * 121
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Balances) * 8
-	for _, _v3 := range obj.RandaoMixes {
-		ssz.EncodeBytes(w, _v3)
-	}
-	ssz.EncodeUint64s(w, obj.Slashings)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.PreviousEpochParticipation)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.CurrentEpochParticipation)
-	ssz.EncodeBytes(w, obj.JustificationBits)
-	if obj.PreviousJustifiedCheckpoint == nil {
-		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
-	}
-	if err := obj.PreviousJustifiedCheckpoint.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.CurrentJustifiedCheckpoint == nil {
-		obj.CurrentJustifiedCheckpoint = new(Checkpoint)
-	}
-	if err := obj.CurrentJustifiedCheckpoint.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.FinalizedCheckpoint == nil {
-		obj.FinalizedCheckpoint = new(Checkpoint)
-	}
-	if err := obj.FinalizedCheckpoint.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.InactivityScores) * 8
-	if obj.CurrentSyncCommittee == nil {
-		obj.CurrentSyncCommittee = new(SyncCommittee)
-	}
-	if err := obj.CurrentSyncCommittee.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.NextSyncCommittee == nil {
-		obj.NextSyncCommittee = new(SyncCommittee)
-	}
-	if err := obj.NextSyncCommittee.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	for _, _v4 := range obj.HistoricalRoots {
-		ssz.EncodeBytes(w, _v4)
-	}
-	for _, _v5 := range obj.Eth1DataVotes {
-		if _v5 == nil {
-			_v5 = new(Eth1Data)
-		}
-		if err := _v5.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	for _, _v6 := range obj.Validators {
-		if _v6 == nil {
-			_v6 = new(Validator)
-		}
-		if err := _v6.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	ssz.EncodeUint64s(w, obj.Balances)
-	ssz.EncodeBytes(w, obj.PreviousEpochParticipation)
-	ssz.EncodeBytes(w, obj.CurrentEpochParticipation)
-	ssz.EncodeUint64s(w, obj.InactivityScores)
-	return nil
-}
-
-func (obj *BeaconStateAltair) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *BeaconStateAltair) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.GenesisTime = _v0
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.GenesisValidatorsRoot = _v2
-	r, _v4, _e5 := ssz.DecodeUint64(r)
+	_v4, _e5 := ssz.DecodeUint64(s)
 	if _e5 != nil {
 		return _e5
 	}
@@ -1758,77 +1043,77 @@ func (obj *BeaconStateAltair) UnmarshalSSZ(r []byte) error {
 	if obj.Fork == nil {
 		obj.Fork = new(Fork)
 	}
-	if err := obj.Fork.UnmarshalSSZ(r); err != nil {
+	if err := obj.Fork.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.LatestBlockHeader == nil {
 		obj.LatestBlockHeader = new(BeaconBlockHeader)
 	}
-	if err := obj.LatestBlockHeader.UnmarshalSSZ(r); err != nil {
+	if err := obj.LatestBlockHeader.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	for _i6 := 0; _i6 < len(obj.BlockRoots); _i6 += 1 {
-		r, _v7, _e8 := ssz.DecodeBytes(r)
+		_v7, _e8 := ssz.DecodeBytes(s)
 		if _e8 != nil {
 			return _e8
 		}
 		obj.BlockRoots[_i6] = _v7
 	}
 	for _i9 := 0; _i9 < len(obj.StateRoots); _i9 += 1 {
-		r, _v10, _e11 := ssz.DecodeBytes(r)
+		_v10, _e11 := ssz.DecodeBytes(s)
 		if _e11 != nil {
 			return _e11
 		}
 		obj.StateRoots[_i9] = _v10
 	}
-	r, _v12, _e13 := ssz.DecodeUint32(r)
+	_v12, _e13 := ssz.DecodeUint32(s)
 	if _e13 != nil {
 		return _e13
 	}
 	if obj.Eth1Data == nil {
 		obj.Eth1Data = new(Eth1Data)
 	}
-	if err := obj.Eth1Data.UnmarshalSSZ(r); err != nil {
+	if err := obj.Eth1Data.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v14, _e15 := ssz.DecodeUint32(r)
+	_v14, _e15 := ssz.DecodeUint32(s)
 	if _e15 != nil {
 		return _e15
 	}
-	r, _v16, _e17 := ssz.DecodeUint64(r)
+	_v16, _e17 := ssz.DecodeUint64(s)
 	if _e17 != nil {
 		return _e17
 	}
 	obj.Eth1DepositIndex = _v16
-	r, _v18, _e19 := ssz.DecodeUint32(r)
+	_v18, _e19 := ssz.DecodeUint32(s)
 	if _e19 != nil {
 		return _e19
 	}
-	r, _v20, _e21 := ssz.DecodeUint32(r)
+	_v20, _e21 := ssz.DecodeUint32(s)
 	if _e21 != nil {
 		return _e21
 	}
 	for _i22 := 0; _i22 < len(obj.RandaoMixes); _i22 += 1 {
-		r, _v23, _e24 := ssz.DecodeBytes(r)
+		_v23, _e24 := ssz.DecodeBytes(s)
 		if _e24 != nil {
 			return _e24
 		}
 		obj.RandaoMixes[_i22] = _v23
 	}
-	r, _v25, _e26 := ssz.DecodeUint64s(r)
+	_v25, _e26 := ssz.DecodeUint64s(s)
 	if _e26 != nil {
 		return _e26
 	}
 	obj.Slashings = _v25
-	r, _v27, _e28 := ssz.DecodeUint32(r)
+	_v27, _e28 := ssz.DecodeUint32(s)
 	if _e28 != nil {
 		return _e28
 	}
-	r, _v29, _e30 := ssz.DecodeUint32(r)
+	_v29, _e30 := ssz.DecodeUint32(s)
 	if _e30 != nil {
 		return _e30
 	}
-	r, _v31, _e32 := ssz.DecodeBytes(r)
+	_v31, _e32 := ssz.DecodeBytes(s)
 	if _e32 != nil {
 		return _e32
 	}
@@ -1836,87 +1121,87 @@ func (obj *BeaconStateAltair) UnmarshalSSZ(r []byte) error {
 	if obj.PreviousJustifiedCheckpoint == nil {
 		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
 	}
-	if err := obj.PreviousJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+	if err := obj.PreviousJustifiedCheckpoint.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.CurrentJustifiedCheckpoint == nil {
 		obj.CurrentJustifiedCheckpoint = new(Checkpoint)
 	}
-	if err := obj.CurrentJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+	if err := obj.CurrentJustifiedCheckpoint.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.FinalizedCheckpoint == nil {
 		obj.FinalizedCheckpoint = new(Checkpoint)
 	}
-	if err := obj.FinalizedCheckpoint.UnmarshalSSZ(r); err != nil {
+	if err := obj.FinalizedCheckpoint.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v33, _e34 := ssz.DecodeUint32(r)
+	_v33, _e34 := ssz.DecodeUint32(s)
 	if _e34 != nil {
 		return _e34
 	}
 	if obj.CurrentSyncCommittee == nil {
 		obj.CurrentSyncCommittee = new(SyncCommittee)
 	}
-	if err := obj.CurrentSyncCommittee.UnmarshalSSZ(r); err != nil {
+	if err := obj.CurrentSyncCommittee.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.NextSyncCommittee == nil {
 		obj.NextSyncCommittee = new(SyncCommittee)
 	}
-	if err := obj.NextSyncCommittee.UnmarshalSSZ(r); err != nil {
+	if err := obj.NextSyncCommittee.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	_r35 := r[_v12:_v14]
-	for _i36 := 0; _i36 < len(obj.HistoricalRoots); _i36 += 1 {
-		_r35, _v37, _e38 := ssz.DecodeBytes(_r35)
-		if _e38 != nil {
-			return _e38
+	s.Reset(_v12 - _v14)
+	for _i35 := 0; _i35 < len(obj.HistoricalRoots); _i35 += 1 {
+		_v36, _e37 := ssz.DecodeBytes(s)
+		if _e37 != nil {
+			return _e37
 		}
-		obj.HistoricalRoots[_i36] = _v37
+		obj.HistoricalRoots[_i35] = _v36
 	}
-	_r39 := r[_v14:_v18]
-	for _i40 := 0; _i40 < len(obj.Eth1DataVotes); _i40 += 1 {
-		if obj.Eth1DataVotes[_i40] == nil {
-			obj.Eth1DataVotes[_i40] = new(Eth1Data)
+	s.Reset(_v14 - _v18)
+	for _i38 := 0; _i38 < len(obj.Eth1DataVotes); _i38 += 1 {
+		if obj.Eth1DataVotes[_i38] == nil {
+			obj.Eth1DataVotes[_i38] = new(Eth1Data)
 		}
-		if err := obj.Eth1DataVotes[_i40].UnmarshalSSZ(_r39); err != nil {
+		if err := obj.Eth1DataVotes[_i38].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r41 := r[_v18:_v20]
-	for _i42 := 0; _i42 < len(obj.Validators); _i42 += 1 {
-		if obj.Validators[_i42] == nil {
-			obj.Validators[_i42] = new(Validator)
+	s.Reset(_v18 - _v20)
+	for _i39 := 0; _i39 < len(obj.Validators); _i39 += 1 {
+		if obj.Validators[_i39] == nil {
+			obj.Validators[_i39] = new(Validator)
 		}
-		if err := obj.Validators[_i42].UnmarshalSSZ(_r41); err != nil {
+		if err := obj.Validators[_i39].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r43 := r[_v20:_v27]
-	_r43, _v44, _e45 := ssz.DecodeUint64s(_r43)
+	s.Reset(_v20 - _v27)
+	_v40, _e41 := ssz.DecodeUint64s(s)
+	if _e41 != nil {
+		return _e41
+	}
+	obj.Balances = _v40
+	s.Reset(_v27 - _v29)
+	_v42, _e43 := ssz.DecodeBytes(s)
+	if _e43 != nil {
+		return _e43
+	}
+	obj.PreviousEpochParticipation = _v42
+	s.Reset(_v29 - _v33)
+	_v44, _e45 := ssz.DecodeBytes(s)
 	if _e45 != nil {
 		return _e45
 	}
-	obj.Balances = _v44
-	_r46 := r[_v27:_v29]
-	_r46, _v47, _e48 := ssz.DecodeBytes(_r46)
-	if _e48 != nil {
-		return _e48
+	obj.CurrentEpochParticipation = _v44
+	_ = _v33
+	_v46, _e47 := ssz.DecodeUint64s(s)
+	if _e47 != nil {
+		return _e47
 	}
-	obj.PreviousEpochParticipation = _v47
-	_r49 := r[_v29:_v33]
-	_r49, _v50, _e51 := ssz.DecodeBytes(_r49)
-	if _e51 != nil {
-		return _e51
-	}
-	obj.CurrentEpochParticipation = _v50
-	_r52 := r[_v33:]
-	_r52, _v53, _e54 := ssz.DecodeUint64s(_r52)
-	if _e54 != nil {
-		return _e54
-	}
-	obj.InactivityScores = _v53
+	obj.InactivityScores = _v46
 	return nil
 }
 
@@ -1936,134 +1221,18 @@ func (obj *BeaconStateBellatrix) SizeSSZ() int {
 	return s
 }
 
-func (obj *BeaconStateBellatrix) MarshalSSZTo(w []byte) error {
-	_o0 := 2736633
-	ssz.EncodeUint64(w, obj.GenesisTime)
-	ssz.EncodeBytes(w, obj.GenesisValidatorsRoot)
-	ssz.EncodeUint64(w, obj.Slot)
-	if obj.Fork == nil {
-		obj.Fork = new(Fork)
-	}
-	if err := obj.Fork.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.LatestBlockHeader == nil {
-		obj.LatestBlockHeader = new(BeaconBlockHeader)
-	}
-	if err := obj.LatestBlockHeader.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	for _, _v1 := range obj.BlockRoots {
-		ssz.EncodeBytes(w, _v1)
-	}
-	for _, _v2 := range obj.StateRoots {
-		ssz.EncodeBytes(w, _v2)
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.HistoricalRoots) * 32
-	if obj.Eth1Data == nil {
-		obj.Eth1Data = new(Eth1Data)
-	}
-	if err := obj.Eth1Data.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Eth1DataVotes) * 72
-	ssz.EncodeUint64(w, obj.Eth1DepositIndex)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Validators) * 121
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Balances) * 8
-	for _, _v3 := range obj.RandaoMixes {
-		ssz.EncodeBytes(w, _v3)
-	}
-	ssz.EncodeUint64s(w, obj.Slashings)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.PreviousEpochParticipation)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.CurrentEpochParticipation)
-	ssz.EncodeBytes(w, obj.JustificationBits)
-	if obj.PreviousJustifiedCheckpoint == nil {
-		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
-	}
-	if err := obj.PreviousJustifiedCheckpoint.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.CurrentJustifiedCheckpoint == nil {
-		obj.CurrentJustifiedCheckpoint = new(Checkpoint)
-	}
-	if err := obj.CurrentJustifiedCheckpoint.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.FinalizedCheckpoint == nil {
-		obj.FinalizedCheckpoint = new(Checkpoint)
-	}
-	if err := obj.FinalizedCheckpoint.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.InactivityScores) * 8
-	if obj.CurrentSyncCommittee == nil {
-		obj.CurrentSyncCommittee = new(SyncCommittee)
-	}
-	if err := obj.CurrentSyncCommittee.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.NextSyncCommittee == nil {
-		obj.NextSyncCommittee = new(SyncCommittee)
-	}
-	if err := obj.NextSyncCommittee.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	if obj.LatestExecutionPayloadHeader == nil {
-		obj.LatestExecutionPayloadHeader = new(ExecutionPayloadHeader)
-	}
-	_o0 += obj.LatestExecutionPayloadHeader.SizeSSZ()
-	for _, _v4 := range obj.HistoricalRoots {
-		ssz.EncodeBytes(w, _v4)
-	}
-	for _, _v5 := range obj.Eth1DataVotes {
-		if _v5 == nil {
-			_v5 = new(Eth1Data)
-		}
-		if err := _v5.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	for _, _v6 := range obj.Validators {
-		if _v6 == nil {
-			_v6 = new(Validator)
-		}
-		if err := _v6.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	ssz.EncodeUint64s(w, obj.Balances)
-	ssz.EncodeBytes(w, obj.PreviousEpochParticipation)
-	ssz.EncodeBytes(w, obj.CurrentEpochParticipation)
-	ssz.EncodeUint64s(w, obj.InactivityScores)
-	if obj.LatestExecutionPayloadHeader == nil {
-		obj.LatestExecutionPayloadHeader = new(ExecutionPayloadHeader)
-	}
-	if err := obj.LatestExecutionPayloadHeader.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (obj *BeaconStateBellatrix) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *BeaconStateBellatrix) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.GenesisTime = _v0
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.GenesisValidatorsRoot = _v2
-	r, _v4, _e5 := ssz.DecodeUint64(r)
+	_v4, _e5 := ssz.DecodeUint64(s)
 	if _e5 != nil {
 		return _e5
 	}
@@ -2071,77 +1240,77 @@ func (obj *BeaconStateBellatrix) UnmarshalSSZ(r []byte) error {
 	if obj.Fork == nil {
 		obj.Fork = new(Fork)
 	}
-	if err := obj.Fork.UnmarshalSSZ(r); err != nil {
+	if err := obj.Fork.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.LatestBlockHeader == nil {
 		obj.LatestBlockHeader = new(BeaconBlockHeader)
 	}
-	if err := obj.LatestBlockHeader.UnmarshalSSZ(r); err != nil {
+	if err := obj.LatestBlockHeader.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	for _i6 := 0; _i6 < len(obj.BlockRoots); _i6 += 1 {
-		r, _v7, _e8 := ssz.DecodeBytes(r)
+		_v7, _e8 := ssz.DecodeBytes(s)
 		if _e8 != nil {
 			return _e8
 		}
 		obj.BlockRoots[_i6] = _v7
 	}
 	for _i9 := 0; _i9 < len(obj.StateRoots); _i9 += 1 {
-		r, _v10, _e11 := ssz.DecodeBytes(r)
+		_v10, _e11 := ssz.DecodeBytes(s)
 		if _e11 != nil {
 			return _e11
 		}
 		obj.StateRoots[_i9] = _v10
 	}
-	r, _v12, _e13 := ssz.DecodeUint32(r)
+	_v12, _e13 := ssz.DecodeUint32(s)
 	if _e13 != nil {
 		return _e13
 	}
 	if obj.Eth1Data == nil {
 		obj.Eth1Data = new(Eth1Data)
 	}
-	if err := obj.Eth1Data.UnmarshalSSZ(r); err != nil {
+	if err := obj.Eth1Data.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v14, _e15 := ssz.DecodeUint32(r)
+	_v14, _e15 := ssz.DecodeUint32(s)
 	if _e15 != nil {
 		return _e15
 	}
-	r, _v16, _e17 := ssz.DecodeUint64(r)
+	_v16, _e17 := ssz.DecodeUint64(s)
 	if _e17 != nil {
 		return _e17
 	}
 	obj.Eth1DepositIndex = _v16
-	r, _v18, _e19 := ssz.DecodeUint32(r)
+	_v18, _e19 := ssz.DecodeUint32(s)
 	if _e19 != nil {
 		return _e19
 	}
-	r, _v20, _e21 := ssz.DecodeUint32(r)
+	_v20, _e21 := ssz.DecodeUint32(s)
 	if _e21 != nil {
 		return _e21
 	}
 	for _i22 := 0; _i22 < len(obj.RandaoMixes); _i22 += 1 {
-		r, _v23, _e24 := ssz.DecodeBytes(r)
+		_v23, _e24 := ssz.DecodeBytes(s)
 		if _e24 != nil {
 			return _e24
 		}
 		obj.RandaoMixes[_i22] = _v23
 	}
-	r, _v25, _e26 := ssz.DecodeUint64s(r)
+	_v25, _e26 := ssz.DecodeUint64s(s)
 	if _e26 != nil {
 		return _e26
 	}
 	obj.Slashings = _v25
-	r, _v27, _e28 := ssz.DecodeUint32(r)
+	_v27, _e28 := ssz.DecodeUint32(s)
 	if _e28 != nil {
 		return _e28
 	}
-	r, _v29, _e30 := ssz.DecodeUint32(r)
+	_v29, _e30 := ssz.DecodeUint32(s)
 	if _e30 != nil {
 		return _e30
 	}
-	r, _v31, _e32 := ssz.DecodeBytes(r)
+	_v31, _e32 := ssz.DecodeBytes(s)
 	if _e32 != nil {
 		return _e32
 	}
@@ -2149,96 +1318,96 @@ func (obj *BeaconStateBellatrix) UnmarshalSSZ(r []byte) error {
 	if obj.PreviousJustifiedCheckpoint == nil {
 		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
 	}
-	if err := obj.PreviousJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+	if err := obj.PreviousJustifiedCheckpoint.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.CurrentJustifiedCheckpoint == nil {
 		obj.CurrentJustifiedCheckpoint = new(Checkpoint)
 	}
-	if err := obj.CurrentJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+	if err := obj.CurrentJustifiedCheckpoint.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.FinalizedCheckpoint == nil {
 		obj.FinalizedCheckpoint = new(Checkpoint)
 	}
-	if err := obj.FinalizedCheckpoint.UnmarshalSSZ(r); err != nil {
+	if err := obj.FinalizedCheckpoint.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v33, _e34 := ssz.DecodeUint32(r)
+	_v33, _e34 := ssz.DecodeUint32(s)
 	if _e34 != nil {
 		return _e34
 	}
 	if obj.CurrentSyncCommittee == nil {
 		obj.CurrentSyncCommittee = new(SyncCommittee)
 	}
-	if err := obj.CurrentSyncCommittee.UnmarshalSSZ(r); err != nil {
+	if err := obj.CurrentSyncCommittee.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.NextSyncCommittee == nil {
 		obj.NextSyncCommittee = new(SyncCommittee)
 	}
-	if err := obj.NextSyncCommittee.UnmarshalSSZ(r); err != nil {
+	if err := obj.NextSyncCommittee.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v35, _e36 := ssz.DecodeUint32(r)
+	_v35, _e36 := ssz.DecodeUint32(s)
 	if _e36 != nil {
 		return _e36
 	}
-	_r37 := r[_v12:_v14]
-	for _i38 := 0; _i38 < len(obj.HistoricalRoots); _i38 += 1 {
-		_r37, _v39, _e40 := ssz.DecodeBytes(_r37)
-		if _e40 != nil {
-			return _e40
+	s.Reset(_v12 - _v14)
+	for _i37 := 0; _i37 < len(obj.HistoricalRoots); _i37 += 1 {
+		_v38, _e39 := ssz.DecodeBytes(s)
+		if _e39 != nil {
+			return _e39
 		}
-		obj.HistoricalRoots[_i38] = _v39
+		obj.HistoricalRoots[_i37] = _v38
 	}
-	_r41 := r[_v14:_v18]
-	for _i42 := 0; _i42 < len(obj.Eth1DataVotes); _i42 += 1 {
-		if obj.Eth1DataVotes[_i42] == nil {
-			obj.Eth1DataVotes[_i42] = new(Eth1Data)
+	s.Reset(_v14 - _v18)
+	for _i40 := 0; _i40 < len(obj.Eth1DataVotes); _i40 += 1 {
+		if obj.Eth1DataVotes[_i40] == nil {
+			obj.Eth1DataVotes[_i40] = new(Eth1Data)
 		}
-		if err := obj.Eth1DataVotes[_i42].UnmarshalSSZ(_r41); err != nil {
+		if err := obj.Eth1DataVotes[_i40].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r43 := r[_v18:_v20]
-	for _i44 := 0; _i44 < len(obj.Validators); _i44 += 1 {
-		if obj.Validators[_i44] == nil {
-			obj.Validators[_i44] = new(Validator)
+	s.Reset(_v18 - _v20)
+	for _i41 := 0; _i41 < len(obj.Validators); _i41 += 1 {
+		if obj.Validators[_i41] == nil {
+			obj.Validators[_i41] = new(Validator)
 		}
-		if err := obj.Validators[_i44].UnmarshalSSZ(_r43); err != nil {
+		if err := obj.Validators[_i41].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r45 := r[_v20:_v27]
-	_r45, _v46, _e47 := ssz.DecodeUint64s(_r45)
+	s.Reset(_v20 - _v27)
+	_v42, _e43 := ssz.DecodeUint64s(s)
+	if _e43 != nil {
+		return _e43
+	}
+	obj.Balances = _v42
+	s.Reset(_v27 - _v29)
+	_v44, _e45 := ssz.DecodeBytes(s)
+	if _e45 != nil {
+		return _e45
+	}
+	obj.PreviousEpochParticipation = _v44
+	s.Reset(_v29 - _v33)
+	_v46, _e47 := ssz.DecodeBytes(s)
 	if _e47 != nil {
 		return _e47
 	}
-	obj.Balances = _v46
-	_r48 := r[_v27:_v29]
-	_r48, _v49, _e50 := ssz.DecodeBytes(_r48)
-	if _e50 != nil {
-		return _e50
+	obj.CurrentEpochParticipation = _v46
+	s.Reset(_v33 - _v35)
+	_v48, _e49 := ssz.DecodeUint64s(s)
+	if _e49 != nil {
+		return _e49
 	}
-	obj.PreviousEpochParticipation = _v49
-	_r51 := r[_v29:_v33]
-	_r51, _v52, _e53 := ssz.DecodeBytes(_r51)
-	if _e53 != nil {
-		return _e53
-	}
-	obj.CurrentEpochParticipation = _v52
-	_r54 := r[_v33:_v35]
-	_r54, _v55, _e56 := ssz.DecodeUint64s(_r54)
-	if _e56 != nil {
-		return _e56
-	}
-	obj.InactivityScores = _v55
-	_r57 := r[_v35:]
+	obj.InactivityScores = _v48
+	_ = _v35
 	if obj.LatestExecutionPayloadHeader == nil {
 		obj.LatestExecutionPayloadHeader = new(ExecutionPayloadHeader)
 	}
-	if err := obj.LatestExecutionPayloadHeader.UnmarshalSSZ(_r57); err != nil {
+	if err := obj.LatestExecutionPayloadHeader.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	return nil
@@ -2261,146 +1430,18 @@ func (obj *BeaconStateCapella) SizeSSZ() int {
 	return s
 }
 
-func (obj *BeaconStateCapella) MarshalSSZTo(w []byte) error {
-	_o0 := 2736653
-	ssz.EncodeUint64(w, obj.GenesisTime)
-	ssz.EncodeBytes(w, obj.GenesisValidatorsRoot[:])
-	ssz.EncodeUint64(w, obj.Slot)
-	if obj.Fork == nil {
-		obj.Fork = new(Fork)
-	}
-	if err := obj.Fork.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.LatestBlockHeader == nil {
-		obj.LatestBlockHeader = new(BeaconBlockHeader)
-	}
-	if err := obj.LatestBlockHeader.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	for _, _v1 := range obj.BlockRoots {
-		ssz.EncodeBytes(w, _v1[:])
-	}
-	for _, _v2 := range obj.StateRoots {
-		ssz.EncodeBytes(w, _v2[:])
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.HistoricalRoots) * 32
-	if obj.Eth1Data == nil {
-		obj.Eth1Data = new(Eth1Data)
-	}
-	if err := obj.Eth1Data.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Eth1DataVotes) * 72
-	ssz.EncodeUint64(w, obj.Eth1DepositIndex)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Validators) * 121
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Balances) * 8
-	for _, _v3 := range obj.RandaoMixes {
-		ssz.EncodeBytes(w, _v3[:])
-	}
-	ssz.EncodeUint64s(w, obj.Slashings)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.PreviousEpochParticipation)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.CurrentEpochParticipation)
-	ssz.EncodeBytes(w, obj.JustificationBits[:])
-	if obj.PreviousJustifiedCheckpoint == nil {
-		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
-	}
-	if err := obj.PreviousJustifiedCheckpoint.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.CurrentJustifiedCheckpoint == nil {
-		obj.CurrentJustifiedCheckpoint = new(Checkpoint)
-	}
-	if err := obj.CurrentJustifiedCheckpoint.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.FinalizedCheckpoint == nil {
-		obj.FinalizedCheckpoint = new(Checkpoint)
-	}
-	if err := obj.FinalizedCheckpoint.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.InactivityScores) * 8
-	if obj.CurrentSyncCommittee == nil {
-		obj.CurrentSyncCommittee = new(SyncCommittee)
-	}
-	if err := obj.CurrentSyncCommittee.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	if obj.NextSyncCommittee == nil {
-		obj.NextSyncCommittee = new(SyncCommittee)
-	}
-	if err := obj.NextSyncCommittee.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	if obj.LatestExecutionPayloadHeader == nil {
-		obj.LatestExecutionPayloadHeader = new(ExecutionPayloadHeaderCapella)
-	}
-	_o0 += obj.LatestExecutionPayloadHeader.SizeSSZ()
-	ssz.EncodeUint64(w, obj.NextWithdrawalIndex)
-	ssz.EncodeUint64(w, obj.NextWithdrawalValidatorIndex)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.HistoricalSummaries) * 64
-	for _, _v4 := range obj.HistoricalRoots {
-		ssz.EncodeBytes(w, _v4)
-	}
-	for _, _v5 := range obj.Eth1DataVotes {
-		if _v5 == nil {
-			_v5 = new(Eth1Data)
-		}
-		if err := _v5.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	for _, _v6 := range obj.Validators {
-		if _v6 == nil {
-			_v6 = new(Validator)
-		}
-		if err := _v6.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	ssz.EncodeUint64s(w, obj.Balances)
-	ssz.EncodeBytes(w, obj.PreviousEpochParticipation)
-	ssz.EncodeBytes(w, obj.CurrentEpochParticipation)
-	ssz.EncodeUint64s(w, obj.InactivityScores)
-	if obj.LatestExecutionPayloadHeader == nil {
-		obj.LatestExecutionPayloadHeader = new(ExecutionPayloadHeaderCapella)
-	}
-	if err := obj.LatestExecutionPayloadHeader.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	for _, _v7 := range obj.HistoricalSummaries {
-		if _v7 == nil {
-			_v7 = new(HistoricalSummary)
-		}
-		if err := _v7.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (obj *BeaconStateCapella) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *BeaconStateCapella) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.GenesisTime = _v0
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.GenesisValidatorsRoot = [32]byte(_v2)
-	r, _v4, _e5 := ssz.DecodeUint64(r)
+	_v4, _e5 := ssz.DecodeUint64(s)
 	if _e5 != nil {
 		return _e5
 	}
@@ -2408,77 +1449,77 @@ func (obj *BeaconStateCapella) UnmarshalSSZ(r []byte) error {
 	if obj.Fork == nil {
 		obj.Fork = new(Fork)
 	}
-	if err := obj.Fork.UnmarshalSSZ(r); err != nil {
+	if err := obj.Fork.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.LatestBlockHeader == nil {
 		obj.LatestBlockHeader = new(BeaconBlockHeader)
 	}
-	if err := obj.LatestBlockHeader.UnmarshalSSZ(r); err != nil {
+	if err := obj.LatestBlockHeader.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	for _i6 := 0; _i6 < len(obj.BlockRoots); _i6 += 1 {
-		r, _v7, _e8 := ssz.DecodeBytes(r)
+		_v7, _e8 := ssz.DecodeBytes(s)
 		if _e8 != nil {
 			return _e8
 		}
 		obj.BlockRoots[_i6] = [32]byte(_v7)
 	}
 	for _i9 := 0; _i9 < len(obj.StateRoots); _i9 += 1 {
-		r, _v10, _e11 := ssz.DecodeBytes(r)
+		_v10, _e11 := ssz.DecodeBytes(s)
 		if _e11 != nil {
 			return _e11
 		}
 		obj.StateRoots[_i9] = [32]byte(_v10)
 	}
-	r, _v12, _e13 := ssz.DecodeUint32(r)
+	_v12, _e13 := ssz.DecodeUint32(s)
 	if _e13 != nil {
 		return _e13
 	}
 	if obj.Eth1Data == nil {
 		obj.Eth1Data = new(Eth1Data)
 	}
-	if err := obj.Eth1Data.UnmarshalSSZ(r); err != nil {
+	if err := obj.Eth1Data.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v14, _e15 := ssz.DecodeUint32(r)
+	_v14, _e15 := ssz.DecodeUint32(s)
 	if _e15 != nil {
 		return _e15
 	}
-	r, _v16, _e17 := ssz.DecodeUint64(r)
+	_v16, _e17 := ssz.DecodeUint64(s)
 	if _e17 != nil {
 		return _e17
 	}
 	obj.Eth1DepositIndex = _v16
-	r, _v18, _e19 := ssz.DecodeUint32(r)
+	_v18, _e19 := ssz.DecodeUint32(s)
 	if _e19 != nil {
 		return _e19
 	}
-	r, _v20, _e21 := ssz.DecodeUint32(r)
+	_v20, _e21 := ssz.DecodeUint32(s)
 	if _e21 != nil {
 		return _e21
 	}
 	for _i22 := 0; _i22 < len(obj.RandaoMixes); _i22 += 1 {
-		r, _v23, _e24 := ssz.DecodeBytes(r)
+		_v23, _e24 := ssz.DecodeBytes(s)
 		if _e24 != nil {
 			return _e24
 		}
 		obj.RandaoMixes[_i22] = [32]byte(_v23)
 	}
-	r, _v25, _e26 := ssz.DecodeUint64s(r)
+	_v25, _e26 := ssz.DecodeUint64s(s)
 	if _e26 != nil {
 		return _e26
 	}
 	obj.Slashings = _v25
-	r, _v27, _e28 := ssz.DecodeUint32(r)
+	_v27, _e28 := ssz.DecodeUint32(s)
 	if _e28 != nil {
 		return _e28
 	}
-	r, _v29, _e30 := ssz.DecodeUint32(r)
+	_v29, _e30 := ssz.DecodeUint32(s)
 	if _e30 != nil {
 		return _e30
 	}
-	r, _v31, _e32 := ssz.DecodeBytes(r)
+	_v31, _e32 := ssz.DecodeBytes(s)
 	if _e32 != nil {
 		return _e32
 	}
@@ -2486,118 +1527,118 @@ func (obj *BeaconStateCapella) UnmarshalSSZ(r []byte) error {
 	if obj.PreviousJustifiedCheckpoint == nil {
 		obj.PreviousJustifiedCheckpoint = new(Checkpoint)
 	}
-	if err := obj.PreviousJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+	if err := obj.PreviousJustifiedCheckpoint.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.CurrentJustifiedCheckpoint == nil {
 		obj.CurrentJustifiedCheckpoint = new(Checkpoint)
 	}
-	if err := obj.CurrentJustifiedCheckpoint.UnmarshalSSZ(r); err != nil {
+	if err := obj.CurrentJustifiedCheckpoint.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.FinalizedCheckpoint == nil {
 		obj.FinalizedCheckpoint = new(Checkpoint)
 	}
-	if err := obj.FinalizedCheckpoint.UnmarshalSSZ(r); err != nil {
+	if err := obj.FinalizedCheckpoint.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v33, _e34 := ssz.DecodeUint32(r)
+	_v33, _e34 := ssz.DecodeUint32(s)
 	if _e34 != nil {
 		return _e34
 	}
 	if obj.CurrentSyncCommittee == nil {
 		obj.CurrentSyncCommittee = new(SyncCommittee)
 	}
-	if err := obj.CurrentSyncCommittee.UnmarshalSSZ(r); err != nil {
+	if err := obj.CurrentSyncCommittee.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.NextSyncCommittee == nil {
 		obj.NextSyncCommittee = new(SyncCommittee)
 	}
-	if err := obj.NextSyncCommittee.UnmarshalSSZ(r); err != nil {
+	if err := obj.NextSyncCommittee.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v35, _e36 := ssz.DecodeUint32(r)
+	_v35, _e36 := ssz.DecodeUint32(s)
 	if _e36 != nil {
 		return _e36
 	}
-	r, _v37, _e38 := ssz.DecodeUint64(r)
+	_v37, _e38 := ssz.DecodeUint64(s)
 	if _e38 != nil {
 		return _e38
 	}
 	obj.NextWithdrawalIndex = _v37
-	r, _v39, _e40 := ssz.DecodeUint64(r)
+	_v39, _e40 := ssz.DecodeUint64(s)
 	if _e40 != nil {
 		return _e40
 	}
 	obj.NextWithdrawalValidatorIndex = _v39
-	r, _v41, _e42 := ssz.DecodeUint32(r)
+	_v41, _e42 := ssz.DecodeUint32(s)
 	if _e42 != nil {
 		return _e42
 	}
-	_r43 := r[_v12:_v14]
-	for _i44 := 0; _i44 < len(obj.HistoricalRoots); _i44 += 1 {
-		_r43, _v45, _e46 := ssz.DecodeBytes(_r43)
-		if _e46 != nil {
-			return _e46
+	s.Reset(_v12 - _v14)
+	for _i43 := 0; _i43 < len(obj.HistoricalRoots); _i43 += 1 {
+		_v44, _e45 := ssz.DecodeBytes(s)
+		if _e45 != nil {
+			return _e45
 		}
-		obj.HistoricalRoots[_i44] = _v45
+		obj.HistoricalRoots[_i43] = _v44
 	}
-	_r47 := r[_v14:_v18]
-	for _i48 := 0; _i48 < len(obj.Eth1DataVotes); _i48 += 1 {
-		if obj.Eth1DataVotes[_i48] == nil {
-			obj.Eth1DataVotes[_i48] = new(Eth1Data)
+	s.Reset(_v14 - _v18)
+	for _i46 := 0; _i46 < len(obj.Eth1DataVotes); _i46 += 1 {
+		if obj.Eth1DataVotes[_i46] == nil {
+			obj.Eth1DataVotes[_i46] = new(Eth1Data)
 		}
-		if err := obj.Eth1DataVotes[_i48].UnmarshalSSZ(_r47); err != nil {
+		if err := obj.Eth1DataVotes[_i46].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r49 := r[_v18:_v20]
-	for _i50 := 0; _i50 < len(obj.Validators); _i50 += 1 {
-		if obj.Validators[_i50] == nil {
-			obj.Validators[_i50] = new(Validator)
+	s.Reset(_v18 - _v20)
+	for _i47 := 0; _i47 < len(obj.Validators); _i47 += 1 {
+		if obj.Validators[_i47] == nil {
+			obj.Validators[_i47] = new(Validator)
 		}
-		if err := obj.Validators[_i50].UnmarshalSSZ(_r49); err != nil {
+		if err := obj.Validators[_i47].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
-	_r51 := r[_v20:_v27]
-	_r51, _v52, _e53 := ssz.DecodeUint64s(_r51)
+	s.Reset(_v20 - _v27)
+	_v48, _e49 := ssz.DecodeUint64s(s)
+	if _e49 != nil {
+		return _e49
+	}
+	obj.Balances = _v48
+	s.Reset(_v27 - _v29)
+	_v50, _e51 := ssz.DecodeBytes(s)
+	if _e51 != nil {
+		return _e51
+	}
+	obj.PreviousEpochParticipation = _v50
+	s.Reset(_v29 - _v33)
+	_v52, _e53 := ssz.DecodeBytes(s)
 	if _e53 != nil {
 		return _e53
 	}
-	obj.Balances = _v52
-	_r54 := r[_v27:_v29]
-	_r54, _v55, _e56 := ssz.DecodeBytes(_r54)
-	if _e56 != nil {
-		return _e56
+	obj.CurrentEpochParticipation = _v52
+	s.Reset(_v33 - _v35)
+	_v54, _e55 := ssz.DecodeUint64s(s)
+	if _e55 != nil {
+		return _e55
 	}
-	obj.PreviousEpochParticipation = _v55
-	_r57 := r[_v29:_v33]
-	_r57, _v58, _e59 := ssz.DecodeBytes(_r57)
-	if _e59 != nil {
-		return _e59
-	}
-	obj.CurrentEpochParticipation = _v58
-	_r60 := r[_v33:_v35]
-	_r60, _v61, _e62 := ssz.DecodeUint64s(_r60)
-	if _e62 != nil {
-		return _e62
-	}
-	obj.InactivityScores = _v61
-	_r63 := r[_v35:_v41]
+	obj.InactivityScores = _v54
+	s.Reset(_v35 - _v41)
 	if obj.LatestExecutionPayloadHeader == nil {
 		obj.LatestExecutionPayloadHeader = new(ExecutionPayloadHeaderCapella)
 	}
-	if err := obj.LatestExecutionPayloadHeader.UnmarshalSSZ(_r63); err != nil {
+	if err := obj.LatestExecutionPayloadHeader.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	_r64 := r[_v41:]
-	for _i65 := 0; _i65 < len(obj.HistoricalSummaries); _i65 += 1 {
-		if obj.HistoricalSummaries[_i65] == nil {
-			obj.HistoricalSummaries[_i65] = new(HistoricalSummary)
+	_ = _v41
+	for _i56 := 0; _i56 < len(obj.HistoricalSummaries); _i56 += 1 {
+		if obj.HistoricalSummaries[_i56] == nil {
+			obj.HistoricalSummaries[_i56] = new(HistoricalSummary)
 		}
-		if err := obj.HistoricalSummaries[_i65].UnmarshalSSZ(_r64); err != nil {
+		if err := obj.HistoricalSummaries[_i56].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
@@ -2609,19 +1650,13 @@ func (obj *Checkpoint) SizeSSZ() int {
 	return s
 }
 
-func (obj *Checkpoint) MarshalSSZTo(w []byte) error {
-	ssz.EncodeUint64(w, obj.Epoch)
-	ssz.EncodeBytes(w, obj.Root)
-	return nil
-}
-
-func (obj *Checkpoint) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *Checkpoint) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.Epoch = _v0
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
@@ -2634,22 +1669,9 @@ func (obj *Deposit) SizeSSZ() int {
 	return s
 }
 
-func (obj *Deposit) MarshalSSZTo(w []byte) error {
-	for _, _v0 := range obj.Proof {
-		ssz.EncodeBytes(w, _v0)
-	}
-	if obj.Data == nil {
-		obj.Data = new(DepositData)
-	}
-	if err := obj.Data.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (obj *Deposit) UnmarshalSSZ(r []byte) error {
+func (obj *Deposit) UnmarshalSSZ(s *ssz.Stream) error {
 	for _i0 := 0; _i0 < len(obj.Proof); _i0 += 1 {
-		r, _v1, _e2 := ssz.DecodeBytes(r)
+		_v1, _e2 := ssz.DecodeBytes(s)
 		if _e2 != nil {
 			return _e2
 		}
@@ -2658,7 +1680,7 @@ func (obj *Deposit) UnmarshalSSZ(r []byte) error {
 	if obj.Data == nil {
 		obj.Data = new(DepositData)
 	}
-	if err := obj.Data.UnmarshalSSZ(r); err != nil {
+	if err := obj.Data.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	return nil
@@ -2669,31 +1691,23 @@ func (obj *DepositData) SizeSSZ() int {
 	return s
 }
 
-func (obj *DepositData) MarshalSSZTo(w []byte) error {
-	ssz.EncodeBytes(w, obj.Pubkey[:])
-	ssz.EncodeBytes(w, obj.WithdrawalCredentials[:])
-	ssz.EncodeUint64(w, obj.Amount)
-	ssz.EncodeBytes(w, obj.Signature)
-	return nil
-}
-
-func (obj *DepositData) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *DepositData) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.Pubkey = [48]byte(_v0)
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.WithdrawalCredentials = [32]byte(_v2)
-	r, _v4, _e5 := ssz.DecodeUint64(r)
+	_v4, _e5 := ssz.DecodeUint64(s)
 	if _e5 != nil {
 		return _e5
 	}
 	obj.Amount = _v4
-	r, _v6, _e7 := ssz.DecodeBytes(r)
+	_v6, _e7 := ssz.DecodeBytes(s)
 	if _e7 != nil {
 		return _e7
 	}
@@ -2706,25 +1720,18 @@ func (obj *DepositMessage) SizeSSZ() int {
 	return s
 }
 
-func (obj *DepositMessage) MarshalSSZTo(w []byte) error {
-	ssz.EncodeBytes(w, obj.Pubkey)
-	ssz.EncodeBytes(w, obj.WithdrawalCredentials)
-	ssz.EncodeUint64(w, obj.Amount)
-	return nil
-}
-
-func (obj *DepositMessage) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *DepositMessage) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.Pubkey = _v0
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.WithdrawalCredentials = _v2
-	r, _v4, _e5 := ssz.DecodeUint64(r)
+	_v4, _e5 := ssz.DecodeUint64(s)
 	if _e5 != nil {
 		return _e5
 	}
@@ -2738,25 +1745,17 @@ func (obj *ErrorResponse) SizeSSZ() int {
 	return s
 }
 
-func (obj *ErrorResponse) MarshalSSZTo(w []byte) error {
-	_o0 := 4
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Message)
-	ssz.EncodeBytes(w, obj.Message)
-	return nil
-}
-
-func (obj *ErrorResponse) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint32(r)
+func (obj *ErrorResponse) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint32(s)
 	if _e1 != nil {
 		return _e1
 	}
-	_r2 := r[_v0:]
-	_r2, _v3, _e4 := ssz.DecodeBytes(_r2)
-	if _e4 != nil {
-		return _e4
+	_ = _v0
+	_v2, _e3 := ssz.DecodeBytes(s)
+	if _e3 != nil {
+		return _e3
 	}
-	obj.Message = _v3
+	obj.Message = _v2
 	return nil
 }
 
@@ -2765,25 +1764,18 @@ func (obj *Eth1Block) SizeSSZ() int {
 	return s
 }
 
-func (obj *Eth1Block) MarshalSSZTo(w []byte) error {
-	ssz.EncodeUint64(w, obj.Timestamp)
-	ssz.EncodeBytes(w, obj.DepositRoot)
-	ssz.EncodeUint64(w, obj.DepositCount)
-	return nil
-}
-
-func (obj *Eth1Block) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *Eth1Block) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.Timestamp = _v0
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.DepositRoot = _v2
-	r, _v4, _e5 := ssz.DecodeUint64(r)
+	_v4, _e5 := ssz.DecodeUint64(s)
 	if _e5 != nil {
 		return _e5
 	}
@@ -2796,25 +1788,18 @@ func (obj *Eth1Data) SizeSSZ() int {
 	return s
 }
 
-func (obj *Eth1Data) MarshalSSZTo(w []byte) error {
-	ssz.EncodeBytes(w, obj.DepositRoot)
-	ssz.EncodeUint64(w, obj.DepositCount)
-	ssz.EncodeBytes(w, obj.BlockHash)
-	return nil
-}
-
-func (obj *Eth1Data) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *Eth1Data) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.DepositRoot = _v0
-	r, _v2, _e3 := ssz.DecodeUint64(r)
+	_v2, _e3 := ssz.DecodeUint64(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.DepositCount = _v2
-	r, _v4, _e5 := ssz.DecodeBytes(r)
+	_v4, _e5 := ssz.DecodeBytes(s)
 	if _e5 != nil {
 		return _e5
 	}
@@ -2832,140 +1817,105 @@ func (obj *ExecutionPayload) SizeSSZ() int {
 	return s
 }
 
-func (obj *ExecutionPayload) MarshalSSZTo(w []byte) error {
-	_o0 := 508
-	ssz.EncodeBytes(w, obj.ParentHash[:])
-	ssz.EncodeBytes(w, obj.FeeRecipient[:])
-	ssz.EncodeBytes(w, obj.StateRoot[:])
-	ssz.EncodeBytes(w, obj.ReceiptsRoot[:])
-	ssz.EncodeBytes(w, obj.LogsBloom[:])
-	ssz.EncodeBytes(w, obj.PrevRandao[:])
-	ssz.EncodeUint64(w, obj.BlockNumber)
-	ssz.EncodeUint64(w, obj.GasLimit)
-	ssz.EncodeUint64(w, obj.GasUsed)
-	ssz.EncodeUint64(w, obj.Timestamp)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.ExtraData)
-	ssz.EncodeBytes(w, obj.BaseFeePerGas[:])
-	ssz.EncodeBytes(w, obj.BlockHash[:])
-	ssz.EncodeUint32(w, uint32(_o0))
-	for _, _v1 := range obj.Transactions {
-		_o0 += 4
-		_o0 += len(_v1)
-	}
-	ssz.EncodeBytes(w, obj.ExtraData)
-	_o2 := len(obj.Transactions) * 4
-	for _, _v3 := range obj.Transactions {
-		ssz.EncodeUint32(w, uint32(_o2))
-		_o2 += len(_v3)
-	}
-	for _, _v4 := range obj.Transactions {
-		ssz.EncodeBytes(w, _v4)
-	}
-	return nil
-}
-
-func (obj *ExecutionPayload) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *ExecutionPayload) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.ParentHash = [32]byte(_v0)
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.FeeRecipient = [20]byte(_v2)
-	r, _v4, _e5 := ssz.DecodeBytes(r)
+	_v4, _e5 := ssz.DecodeBytes(s)
 	if _e5 != nil {
 		return _e5
 	}
 	obj.StateRoot = [32]byte(_v4)
-	r, _v6, _e7 := ssz.DecodeBytes(r)
+	_v6, _e7 := ssz.DecodeBytes(s)
 	if _e7 != nil {
 		return _e7
 	}
 	obj.ReceiptsRoot = [32]byte(_v6)
-	r, _v8, _e9 := ssz.DecodeBytes(r)
+	_v8, _e9 := ssz.DecodeBytes(s)
 	if _e9 != nil {
 		return _e9
 	}
 	obj.LogsBloom = [256]byte(_v8)
-	r, _v10, _e11 := ssz.DecodeBytes(r)
+	_v10, _e11 := ssz.DecodeBytes(s)
 	if _e11 != nil {
 		return _e11
 	}
 	obj.PrevRandao = [32]byte(_v10)
-	r, _v12, _e13 := ssz.DecodeUint64(r)
+	_v12, _e13 := ssz.DecodeUint64(s)
 	if _e13 != nil {
 		return _e13
 	}
 	obj.BlockNumber = _v12
-	r, _v14, _e15 := ssz.DecodeUint64(r)
+	_v14, _e15 := ssz.DecodeUint64(s)
 	if _e15 != nil {
 		return _e15
 	}
 	obj.GasLimit = _v14
-	r, _v16, _e17 := ssz.DecodeUint64(r)
+	_v16, _e17 := ssz.DecodeUint64(s)
 	if _e17 != nil {
 		return _e17
 	}
 	obj.GasUsed = _v16
-	r, _v18, _e19 := ssz.DecodeUint64(r)
+	_v18, _e19 := ssz.DecodeUint64(s)
 	if _e19 != nil {
 		return _e19
 	}
 	obj.Timestamp = _v18
-	r, _v20, _e21 := ssz.DecodeUint32(r)
+	_v20, _e21 := ssz.DecodeUint32(s)
 	if _e21 != nil {
 		return _e21
 	}
-	r, _v22, _e23 := ssz.DecodeBytes(r)
+	_v22, _e23 := ssz.DecodeBytes(s)
 	if _e23 != nil {
 		return _e23
 	}
 	obj.BaseFeePerGas = [32]byte(_v22)
-	r, _v24, _e25 := ssz.DecodeBytes(r)
+	_v24, _e25 := ssz.DecodeBytes(s)
 	if _e25 != nil {
 		return _e25
 	}
 	obj.BlockHash = [32]byte(_v24)
-	r, _v26, _e27 := ssz.DecodeUint32(r)
+	_v26, _e27 := ssz.DecodeUint32(s)
 	if _e27 != nil {
 		return _e27
 	}
-	_r28 := r[_v20:_v26]
-	_r28, _v29, _e30 := ssz.DecodeBytes(_r28)
-	if _e30 != nil {
-		return _e30
+	s.Reset(_v20 - _v26)
+	_v28, _e29 := ssz.DecodeBytes(s)
+	if _e29 != nil {
+		return _e29
 	}
-	obj.ExtraData = _v29
-	_r31 := r[_v26:]
-	var (
-		_v33 []uint32
-		_v34 uint32
-		_e35 error
-		_r36 []byte
-	)
+	obj.ExtraData = _v28
+	_ = _v26
 
-	for _i32 := 0; _i32 < len(obj.Transactions); _i32 += 1 {
-		_r31, _v34, _e35 = ssz.DecodeUint32(_r31)
+	var (
+		_v31 []uint32
+		_v32 uint32
+		_e33 error
+	)
+	for _i30 := 0; _i30 < len(obj.Transactions); _i30 += 1 {
+		_v32, _e33 = ssz.DecodeUint32(s)
+		if _e33 != nil {
+			return _e33
+		}
+		_v31 = append(_v31, _v32)
+	}
+	for _i30 := 0; _i30 < len(obj.Transactions); _i30 += 1 {
+		if _i30 == len(obj.Transactions)-1 {
+		} else {
+			s.Reset(_v31[_i30+1] - _v31[_i30])
+		}
+		_v34, _e35 := ssz.DecodeBytes(s)
 		if _e35 != nil {
 			return _e35
 		}
-		_v33 = append(_v33, _v34)
-	}
-	for _i32 := 0; _i32 < len(obj.Transactions); _i32 += 1 {
-		if _i32 == len(obj.Transactions)-1 {
-			_r36 = _r31[_v33[_i32]:]
-		} else {
-			_r36 = _r31[_v33[_i32]:_v33[_i32+1]]
-		}
-		_r36, _v37, _e38 := ssz.DecodeBytes(_r36)
-		if _e38 != nil {
-			return _e38
-		}
-		obj.Transactions[_i32] = _v37
+		obj.Transactions[_i30] = _v34
 	}
 	return nil
 }
@@ -2981,161 +1931,116 @@ func (obj *ExecutionPayloadCapella) SizeSSZ() int {
 	return s
 }
 
-func (obj *ExecutionPayloadCapella) MarshalSSZTo(w []byte) error {
-	_o0 := 512
-	ssz.EncodeBytes(w, obj.ParentHash[:])
-	ssz.EncodeBytes(w, obj.FeeRecipient[:])
-	ssz.EncodeBytes(w, obj.StateRoot[:])
-	ssz.EncodeBytes(w, obj.ReceiptsRoot[:])
-	ssz.EncodeBytes(w, obj.LogsBloom[:])
-	ssz.EncodeBytes(w, obj.PrevRandao[:])
-	ssz.EncodeUint64(w, obj.BlockNumber)
-	ssz.EncodeUint64(w, obj.GasLimit)
-	ssz.EncodeUint64(w, obj.GasUsed)
-	ssz.EncodeUint64(w, obj.Timestamp)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.ExtraData)
-	ssz.EncodeBytes(w, obj.BaseFeePerGas[:])
-	ssz.EncodeBytes(w, obj.BlockHash[:])
-	ssz.EncodeUint32(w, uint32(_o0))
-	for _, _v1 := range obj.Transactions {
-		_o0 += 4
-		_o0 += len(_v1)
-	}
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.Withdrawals) * 44
-	ssz.EncodeBytes(w, obj.ExtraData)
-	_o2 := len(obj.Transactions) * 4
-	for _, _v3 := range obj.Transactions {
-		ssz.EncodeUint32(w, uint32(_o2))
-		_o2 += len(_v3)
-	}
-	for _, _v4 := range obj.Transactions {
-		ssz.EncodeBytes(w, _v4)
-	}
-	for _, _v5 := range obj.Withdrawals {
-		if _v5 == nil {
-			_v5 = new(Withdrawal)
-		}
-		if err := _v5.MarshalSSZTo(w); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (obj *ExecutionPayloadCapella) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *ExecutionPayloadCapella) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.ParentHash = [32]byte(_v0)
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.FeeRecipient = [20]byte(_v2)
-	r, _v4, _e5 := ssz.DecodeBytes(r)
+	_v4, _e5 := ssz.DecodeBytes(s)
 	if _e5 != nil {
 		return _e5
 	}
 	obj.StateRoot = [32]byte(_v4)
-	r, _v6, _e7 := ssz.DecodeBytes(r)
+	_v6, _e7 := ssz.DecodeBytes(s)
 	if _e7 != nil {
 		return _e7
 	}
 	obj.ReceiptsRoot = [32]byte(_v6)
-	r, _v8, _e9 := ssz.DecodeBytes(r)
+	_v8, _e9 := ssz.DecodeBytes(s)
 	if _e9 != nil {
 		return _e9
 	}
 	obj.LogsBloom = [256]byte(_v8)
-	r, _v10, _e11 := ssz.DecodeBytes(r)
+	_v10, _e11 := ssz.DecodeBytes(s)
 	if _e11 != nil {
 		return _e11
 	}
 	obj.PrevRandao = [32]byte(_v10)
-	r, _v12, _e13 := ssz.DecodeUint64(r)
+	_v12, _e13 := ssz.DecodeUint64(s)
 	if _e13 != nil {
 		return _e13
 	}
 	obj.BlockNumber = _v12
-	r, _v14, _e15 := ssz.DecodeUint64(r)
+	_v14, _e15 := ssz.DecodeUint64(s)
 	if _e15 != nil {
 		return _e15
 	}
 	obj.GasLimit = _v14
-	r, _v16, _e17 := ssz.DecodeUint64(r)
+	_v16, _e17 := ssz.DecodeUint64(s)
 	if _e17 != nil {
 		return _e17
 	}
 	obj.GasUsed = _v16
-	r, _v18, _e19 := ssz.DecodeUint64(r)
+	_v18, _e19 := ssz.DecodeUint64(s)
 	if _e19 != nil {
 		return _e19
 	}
 	obj.Timestamp = _v18
-	r, _v20, _e21 := ssz.DecodeUint32(r)
+	_v20, _e21 := ssz.DecodeUint32(s)
 	if _e21 != nil {
 		return _e21
 	}
-	r, _v22, _e23 := ssz.DecodeBytes(r)
+	_v22, _e23 := ssz.DecodeBytes(s)
 	if _e23 != nil {
 		return _e23
 	}
 	obj.BaseFeePerGas = [32]byte(_v22)
-	r, _v24, _e25 := ssz.DecodeBytes(r)
+	_v24, _e25 := ssz.DecodeBytes(s)
 	if _e25 != nil {
 		return _e25
 	}
 	obj.BlockHash = [32]byte(_v24)
-	r, _v26, _e27 := ssz.DecodeUint32(r)
+	_v26, _e27 := ssz.DecodeUint32(s)
 	if _e27 != nil {
 		return _e27
 	}
-	r, _v28, _e29 := ssz.DecodeUint32(r)
+	_v28, _e29 := ssz.DecodeUint32(s)
 	if _e29 != nil {
 		return _e29
 	}
-	_r30 := r[_v20:_v26]
-	_r30, _v31, _e32 := ssz.DecodeBytes(_r30)
-	if _e32 != nil {
-		return _e32
+	s.Reset(_v20 - _v26)
+	_v30, _e31 := ssz.DecodeBytes(s)
+	if _e31 != nil {
+		return _e31
 	}
-	obj.ExtraData = _v31
-	_r33 := r[_v26:_v28]
-	var (
-		_v35 []uint32
-		_v36 uint32
-		_e37 error
-		_r38 []byte
-	)
+	obj.ExtraData = _v30
+	s.Reset(_v26 - _v28)
 
-	for _i34 := 0; _i34 < len(obj.Transactions); _i34 += 1 {
-		_r33, _v36, _e37 = ssz.DecodeUint32(_r33)
+	var (
+		_v33 []uint32
+		_v34 uint32
+		_e35 error
+	)
+	for _i32 := 0; _i32 < len(obj.Transactions); _i32 += 1 {
+		_v34, _e35 = ssz.DecodeUint32(s)
+		if _e35 != nil {
+			return _e35
+		}
+		_v33 = append(_v33, _v34)
+	}
+	for _i32 := 0; _i32 < len(obj.Transactions); _i32 += 1 {
+		if _i32 == len(obj.Transactions)-1 {
+		} else {
+			s.Reset(_v33[_i32+1] - _v33[_i32])
+		}
+		_v36, _e37 := ssz.DecodeBytes(s)
 		if _e37 != nil {
 			return _e37
 		}
-		_v35 = append(_v35, _v36)
+		obj.Transactions[_i32] = _v36
 	}
-	for _i34 := 0; _i34 < len(obj.Transactions); _i34 += 1 {
-		if _i34 == len(obj.Transactions)-1 {
-			_r38 = _r33[_v35[_i34]:]
-		} else {
-			_r38 = _r33[_v35[_i34]:_v35[_i34+1]]
+	_ = _v28
+	for _i38 := 0; _i38 < len(obj.Withdrawals); _i38 += 1 {
+		if obj.Withdrawals[_i38] == nil {
+			obj.Withdrawals[_i38] = new(Withdrawal)
 		}
-		_r38, _v39, _e40 := ssz.DecodeBytes(_r38)
-		if _e40 != nil {
-			return _e40
-		}
-		obj.Transactions[_i34] = _v39
-	}
-	_r41 := r[_v28:]
-	for _i42 := 0; _i42 < len(obj.Withdrawals); _i42 += 1 {
-		if obj.Withdrawals[_i42] == nil {
-			obj.Withdrawals[_i42] = new(Withdrawal)
-		}
-		if err := obj.Withdrawals[_i42].UnmarshalSSZ(_r41); err != nil {
+		if err := obj.Withdrawals[_i38].UnmarshalSSZ(s); err != nil {
 			return err
 		}
 	}
@@ -3148,103 +2053,82 @@ func (obj *ExecutionPayloadHeader) SizeSSZ() int {
 	return s
 }
 
-func (obj *ExecutionPayloadHeader) MarshalSSZTo(w []byte) error {
-	_o0 := 536
-	ssz.EncodeBytes(w, obj.ParentHash)
-	ssz.EncodeBytes(w, obj.FeeRecipient)
-	ssz.EncodeBytes(w, obj.StateRoot)
-	ssz.EncodeBytes(w, obj.ReceiptsRoot)
-	ssz.EncodeBytes(w, obj.LogsBloom)
-	ssz.EncodeBytes(w, obj.PrevRandao)
-	ssz.EncodeUint64(w, obj.BlockNumber)
-	ssz.EncodeUint64(w, obj.GasLimit)
-	ssz.EncodeUint64(w, obj.GasUsed)
-	ssz.EncodeUint64(w, obj.Timestamp)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.ExtraData)
-	ssz.EncodeBytes(w, obj.BaseFeePerGas)
-	ssz.EncodeBytes(w, obj.BlockHash)
-	ssz.EncodeBytes(w, obj.TransactionsRoot)
-	ssz.EncodeBytes(w, obj.ExtraData)
-	return nil
-}
-
-func (obj *ExecutionPayloadHeader) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *ExecutionPayloadHeader) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.ParentHash = _v0
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.FeeRecipient = _v2
-	r, _v4, _e5 := ssz.DecodeBytes(r)
+	_v4, _e5 := ssz.DecodeBytes(s)
 	if _e5 != nil {
 		return _e5
 	}
 	obj.StateRoot = _v4
-	r, _v6, _e7 := ssz.DecodeBytes(r)
+	_v6, _e7 := ssz.DecodeBytes(s)
 	if _e7 != nil {
 		return _e7
 	}
 	obj.ReceiptsRoot = _v6
-	r, _v8, _e9 := ssz.DecodeBytes(r)
+	_v8, _e9 := ssz.DecodeBytes(s)
 	if _e9 != nil {
 		return _e9
 	}
 	obj.LogsBloom = _v8
-	r, _v10, _e11 := ssz.DecodeBytes(r)
+	_v10, _e11 := ssz.DecodeBytes(s)
 	if _e11 != nil {
 		return _e11
 	}
 	obj.PrevRandao = _v10
-	r, _v12, _e13 := ssz.DecodeUint64(r)
+	_v12, _e13 := ssz.DecodeUint64(s)
 	if _e13 != nil {
 		return _e13
 	}
 	obj.BlockNumber = _v12
-	r, _v14, _e15 := ssz.DecodeUint64(r)
+	_v14, _e15 := ssz.DecodeUint64(s)
 	if _e15 != nil {
 		return _e15
 	}
 	obj.GasLimit = _v14
-	r, _v16, _e17 := ssz.DecodeUint64(r)
+	_v16, _e17 := ssz.DecodeUint64(s)
 	if _e17 != nil {
 		return _e17
 	}
 	obj.GasUsed = _v16
-	r, _v18, _e19 := ssz.DecodeUint64(r)
+	_v18, _e19 := ssz.DecodeUint64(s)
 	if _e19 != nil {
 		return _e19
 	}
 	obj.Timestamp = _v18
-	r, _v20, _e21 := ssz.DecodeUint32(r)
+	_v20, _e21 := ssz.DecodeUint32(s)
 	if _e21 != nil {
 		return _e21
 	}
-	r, _v22, _e23 := ssz.DecodeBytes(r)
+	_v22, _e23 := ssz.DecodeBytes(s)
 	if _e23 != nil {
 		return _e23
 	}
 	obj.BaseFeePerGas = _v22
-	r, _v24, _e25 := ssz.DecodeBytes(r)
+	_v24, _e25 := ssz.DecodeBytes(s)
 	if _e25 != nil {
 		return _e25
 	}
 	obj.BlockHash = _v24
-	r, _v26, _e27 := ssz.DecodeBytes(r)
+	_v26, _e27 := ssz.DecodeBytes(s)
 	if _e27 != nil {
 		return _e27
 	}
 	obj.TransactionsRoot = _v26
-	_r28 := r[_v20:]
-	_r28, _v29, _e30 := ssz.DecodeBytes(_r28)
-	if _e30 != nil {
-		return _e30
+	_ = _v20
+	_v28, _e29 := ssz.DecodeBytes(s)
+	if _e29 != nil {
+		return _e29
 	}
-	obj.ExtraData = _v29
+	obj.ExtraData = _v28
 	return nil
 }
 
@@ -3254,109 +2138,87 @@ func (obj *ExecutionPayloadHeaderCapella) SizeSSZ() int {
 	return s
 }
 
-func (obj *ExecutionPayloadHeaderCapella) MarshalSSZTo(w []byte) error {
-	_o0 := 568
-	ssz.EncodeBytes(w, obj.ParentHash[:])
-	ssz.EncodeBytes(w, obj.FeeRecipient[:])
-	ssz.EncodeBytes(w, obj.StateRoot[:])
-	ssz.EncodeBytes(w, obj.ReceiptsRoot[:])
-	ssz.EncodeBytes(w, obj.LogsBloom[:])
-	ssz.EncodeBytes(w, obj.PrevRandao[:])
-	ssz.EncodeUint64(w, obj.BlockNumber)
-	ssz.EncodeUint64(w, obj.GasLimit)
-	ssz.EncodeUint64(w, obj.GasUsed)
-	ssz.EncodeUint64(w, obj.Timestamp)
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.ExtraData)
-	ssz.EncodeBytes(w, obj.BaseFeePerGas[:])
-	ssz.EncodeBytes(w, obj.BlockHash[:])
-	ssz.EncodeBytes(w, obj.TransactionsRoot[:])
-	ssz.EncodeBytes(w, obj.WithdrawalRoot[:])
-	ssz.EncodeBytes(w, obj.ExtraData)
-	return nil
-}
-
-func (obj *ExecutionPayloadHeaderCapella) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *ExecutionPayloadHeaderCapella) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.ParentHash = [32]byte(_v0)
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.FeeRecipient = [20]byte(_v2)
-	r, _v4, _e5 := ssz.DecodeBytes(r)
+	_v4, _e5 := ssz.DecodeBytes(s)
 	if _e5 != nil {
 		return _e5
 	}
 	obj.StateRoot = [32]byte(_v4)
-	r, _v6, _e7 := ssz.DecodeBytes(r)
+	_v6, _e7 := ssz.DecodeBytes(s)
 	if _e7 != nil {
 		return _e7
 	}
 	obj.ReceiptsRoot = [32]byte(_v6)
-	r, _v8, _e9 := ssz.DecodeBytes(r)
+	_v8, _e9 := ssz.DecodeBytes(s)
 	if _e9 != nil {
 		return _e9
 	}
 	obj.LogsBloom = [256]byte(_v8)
-	r, _v10, _e11 := ssz.DecodeBytes(r)
+	_v10, _e11 := ssz.DecodeBytes(s)
 	if _e11 != nil {
 		return _e11
 	}
 	obj.PrevRandao = [32]byte(_v10)
-	r, _v12, _e13 := ssz.DecodeUint64(r)
+	_v12, _e13 := ssz.DecodeUint64(s)
 	if _e13 != nil {
 		return _e13
 	}
 	obj.BlockNumber = _v12
-	r, _v14, _e15 := ssz.DecodeUint64(r)
+	_v14, _e15 := ssz.DecodeUint64(s)
 	if _e15 != nil {
 		return _e15
 	}
 	obj.GasLimit = _v14
-	r, _v16, _e17 := ssz.DecodeUint64(r)
+	_v16, _e17 := ssz.DecodeUint64(s)
 	if _e17 != nil {
 		return _e17
 	}
 	obj.GasUsed = _v16
-	r, _v18, _e19 := ssz.DecodeUint64(r)
+	_v18, _e19 := ssz.DecodeUint64(s)
 	if _e19 != nil {
 		return _e19
 	}
 	obj.Timestamp = _v18
-	r, _v20, _e21 := ssz.DecodeUint32(r)
+	_v20, _e21 := ssz.DecodeUint32(s)
 	if _e21 != nil {
 		return _e21
 	}
-	r, _v22, _e23 := ssz.DecodeBytes(r)
+	_v22, _e23 := ssz.DecodeBytes(s)
 	if _e23 != nil {
 		return _e23
 	}
 	obj.BaseFeePerGas = [32]byte(_v22)
-	r, _v24, _e25 := ssz.DecodeBytes(r)
+	_v24, _e25 := ssz.DecodeBytes(s)
 	if _e25 != nil {
 		return _e25
 	}
 	obj.BlockHash = [32]byte(_v24)
-	r, _v26, _e27 := ssz.DecodeBytes(r)
+	_v26, _e27 := ssz.DecodeBytes(s)
 	if _e27 != nil {
 		return _e27
 	}
 	obj.TransactionsRoot = [32]byte(_v26)
-	r, _v28, _e29 := ssz.DecodeBytes(r)
+	_v28, _e29 := ssz.DecodeBytes(s)
 	if _e29 != nil {
 		return _e29
 	}
 	obj.WithdrawalRoot = [32]byte(_v28)
-	_r30 := r[_v20:]
-	_r30, _v31, _e32 := ssz.DecodeBytes(_r30)
-	if _e32 != nil {
-		return _e32
+	_ = _v20
+	_v30, _e31 := ssz.DecodeBytes(s)
+	if _e31 != nil {
+		return _e31
 	}
-	obj.ExtraData = _v31
+	obj.ExtraData = _v30
 	return nil
 }
 
@@ -3365,25 +2227,18 @@ func (obj *Fork) SizeSSZ() int {
 	return s
 }
 
-func (obj *Fork) MarshalSSZTo(w []byte) error {
-	ssz.EncodeBytes(w, obj.PreviousVersion)
-	ssz.EncodeBytes(w, obj.CurrentVersion)
-	ssz.EncodeUint64(w, obj.Epoch)
-	return nil
-}
-
-func (obj *Fork) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *Fork) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.PreviousVersion = _v0
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.CurrentVersion = _v2
-	r, _v4, _e5 := ssz.DecodeUint64(r)
+	_v4, _e5 := ssz.DecodeUint64(s)
 	if _e5 != nil {
 		return _e5
 	}
@@ -3396,26 +2251,16 @@ func (obj *HistoricalBatch) SizeSSZ() int {
 	return s
 }
 
-func (obj *HistoricalBatch) MarshalSSZTo(w []byte) error {
-	for _, _v0 := range obj.BlockRoots {
-		ssz.EncodeBytes(w, _v0[:])
-	}
-	for _, _v1 := range obj.StateRoots {
-		ssz.EncodeBytes(w, _v1[:])
-	}
-	return nil
-}
-
-func (obj *HistoricalBatch) UnmarshalSSZ(r []byte) error {
+func (obj *HistoricalBatch) UnmarshalSSZ(s *ssz.Stream) error {
 	for _i0 := 0; _i0 < len(obj.BlockRoots); _i0 += 1 {
-		r, _v1, _e2 := ssz.DecodeBytes(r)
+		_v1, _e2 := ssz.DecodeBytes(s)
 		if _e2 != nil {
 			return _e2
 		}
 		obj.BlockRoots[_i0] = [32]byte(_v1)
 	}
 	for _i3 := 0; _i3 < len(obj.StateRoots); _i3 += 1 {
-		r, _v4, _e5 := ssz.DecodeBytes(r)
+		_v4, _e5 := ssz.DecodeBytes(s)
 		if _e5 != nil {
 			return _e5
 		}
@@ -3429,19 +2274,13 @@ func (obj *HistoricalSummary) SizeSSZ() int {
 	return s
 }
 
-func (obj *HistoricalSummary) MarshalSSZTo(w []byte) error {
-	ssz.EncodeBytes(w, obj.BlockSummaryRoot[:])
-	ssz.EncodeBytes(w, obj.StateSummaryRoot[:])
-	return nil
-}
-
-func (obj *HistoricalSummary) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *HistoricalSummary) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.BlockSummaryRoot = [32]byte(_v0)
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
@@ -3455,43 +2294,28 @@ func (obj *IndexedAttestation) SizeSSZ() int {
 	return s
 }
 
-func (obj *IndexedAttestation) MarshalSSZTo(w []byte) error {
-	_o0 := 228
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.AttestationIndices) * 8
-	if obj.Data == nil {
-		obj.Data = new(AttestationData)
-	}
-	if err := obj.Data.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeBytes(w, obj.Signature)
-	ssz.EncodeUint64s(w, obj.AttestationIndices)
-	return nil
-}
-
-func (obj *IndexedAttestation) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint32(r)
+func (obj *IndexedAttestation) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint32(s)
 	if _e1 != nil {
 		return _e1
 	}
 	if obj.Data == nil {
 		obj.Data = new(AttestationData)
 	}
-	if err := obj.Data.UnmarshalSSZ(r); err != nil {
+	if err := obj.Data.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.Signature = _v2
-	_r4 := r[_v0:]
-	_r4, _v5, _e6 := ssz.DecodeUint64s(_r4)
-	if _e6 != nil {
-		return _e6
+	_ = _v0
+	_v4, _e5 := ssz.DecodeUint64s(s)
+	if _e5 != nil {
+		return _e5
 	}
-	obj.AttestationIndices = _v5
+	obj.AttestationIndices = _v4
 	return nil
 }
 
@@ -3501,49 +2325,33 @@ func (obj *PendingAttestation) SizeSSZ() int {
 	return s
 }
 
-func (obj *PendingAttestation) MarshalSSZTo(w []byte) error {
-	_o0 := 148
-	ssz.EncodeUint32(w, uint32(_o0))
-	_o0 += len(obj.AggregationBits)
-	if obj.Data == nil {
-		obj.Data = new(AttestationData)
-	}
-	if err := obj.Data.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	ssz.EncodeUint64(w, obj.InclusionDelay)
-	ssz.EncodeUint64(w, obj.ProposerIndex)
-	ssz.EncodeBytes(w, obj.AggregationBits)
-	return nil
-}
-
-func (obj *PendingAttestation) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint32(r)
+func (obj *PendingAttestation) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint32(s)
 	if _e1 != nil {
 		return _e1
 	}
 	if obj.Data == nil {
 		obj.Data = new(AttestationData)
 	}
-	if err := obj.Data.UnmarshalSSZ(r); err != nil {
+	if err := obj.Data.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	r, _v2, _e3 := ssz.DecodeUint64(r)
+	_v2, _e3 := ssz.DecodeUint64(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.InclusionDelay = _v2
-	r, _v4, _e5 := ssz.DecodeUint64(r)
+	_v4, _e5 := ssz.DecodeUint64(s)
 	if _e5 != nil {
 		return _e5
 	}
 	obj.ProposerIndex = _v4
-	_r6 := r[_v0:]
-	_r6, _v7, _e8 := ssz.DecodeBytes(_r6)
-	if _e8 != nil {
-		return _e8
+	_ = _v0
+	_v6, _e7 := ssz.DecodeBytes(s)
+	if _e7 != nil {
+		return _e7
 	}
-	obj.AggregationBits = _v7
+	obj.AggregationBits = _v6
 	return nil
 }
 
@@ -3552,33 +2360,17 @@ func (obj *ProposerSlashing) SizeSSZ() int {
 	return s
 }
 
-func (obj *ProposerSlashing) MarshalSSZTo(w []byte) error {
+func (obj *ProposerSlashing) UnmarshalSSZ(s *ssz.Stream) error {
 	if obj.Header1 == nil {
 		obj.Header1 = new(SignedBeaconBlockHeader)
 	}
-	if err := obj.Header1.MarshalSSZTo(w); err != nil {
+	if err := obj.Header1.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	if obj.Header2 == nil {
 		obj.Header2 = new(SignedBeaconBlockHeader)
 	}
-	if err := obj.Header2.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (obj *ProposerSlashing) UnmarshalSSZ(r []byte) error {
-	if obj.Header1 == nil {
-		obj.Header1 = new(SignedBeaconBlockHeader)
-	}
-	if err := obj.Header1.UnmarshalSSZ(r); err != nil {
-		return err
-	}
-	if obj.Header2 == nil {
-		obj.Header2 = new(SignedBeaconBlockHeader)
-	}
-	if err := obj.Header2.UnmarshalSSZ(r); err != nil {
+	if err := obj.Header2.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	return nil
@@ -3589,25 +2381,14 @@ func (obj *SignedBLSToExecutionChange) SizeSSZ() int {
 	return s
 }
 
-func (obj *SignedBLSToExecutionChange) MarshalSSZTo(w []byte) error {
+func (obj *SignedBLSToExecutionChange) UnmarshalSSZ(s *ssz.Stream) error {
 	if obj.Message == nil {
 		obj.Message = new(BLSToExecutionChange)
 	}
-	if err := obj.Message.MarshalSSZTo(w); err != nil {
+	if err := obj.Message.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	ssz.EncodeBytes(w, obj.Signature[:])
-	return nil
-}
-
-func (obj *SignedBLSToExecutionChange) UnmarshalSSZ(r []byte) error {
-	if obj.Message == nil {
-		obj.Message = new(BLSToExecutionChange)
-	}
-	if err := obj.Message.UnmarshalSSZ(r); err != nil {
-		return err
-	}
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
@@ -3624,38 +2405,21 @@ func (obj *SignedBeaconBlock) SizeSSZ() int {
 	return s
 }
 
-func (obj *SignedBeaconBlock) MarshalSSZTo(w []byte) error {
-	_o0 := 100
-	ssz.EncodeUint32(w, uint32(_o0))
-	if obj.Block == nil {
-		obj.Block = new(BeaconBlock)
-	}
-	_o0 += obj.Block.SizeSSZ()
-	ssz.EncodeBytes(w, obj.Signature)
-	if obj.Block == nil {
-		obj.Block = new(BeaconBlock)
-	}
-	if err := obj.Block.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (obj *SignedBeaconBlock) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint32(r)
+func (obj *SignedBeaconBlock) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint32(s)
 	if _e1 != nil {
 		return _e1
 	}
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.Signature = _v2
-	_r4 := r[_v0:]
+	_ = _v0
 	if obj.Block == nil {
 		obj.Block = new(BeaconBlock)
 	}
-	if err := obj.Block.UnmarshalSSZ(_r4); err != nil {
+	if err := obj.Block.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	return nil
@@ -3670,38 +2434,21 @@ func (obj *SignedBeaconBlockCapella) SizeSSZ() int {
 	return s
 }
 
-func (obj *SignedBeaconBlockCapella) MarshalSSZTo(w []byte) error {
-	_o0 := 100
-	ssz.EncodeUint32(w, uint32(_o0))
-	if obj.Block == nil {
-		obj.Block = new(BeaconBlockCapella)
-	}
-	_o0 += obj.Block.SizeSSZ()
-	ssz.EncodeBytes(w, obj.Signature)
-	if obj.Block == nil {
-		obj.Block = new(BeaconBlockCapella)
-	}
-	if err := obj.Block.MarshalSSZTo(w); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (obj *SignedBeaconBlockCapella) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint32(r)
+func (obj *SignedBeaconBlockCapella) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint32(s)
 	if _e1 != nil {
 		return _e1
 	}
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.Signature = _v2
-	_r4 := r[_v0:]
+	_ = _v0
 	if obj.Block == nil {
 		obj.Block = new(BeaconBlockCapella)
 	}
-	if err := obj.Block.UnmarshalSSZ(_r4); err != nil {
+	if err := obj.Block.UnmarshalSSZ(s); err != nil {
 		return err
 	}
 	return nil
@@ -3712,25 +2459,14 @@ func (obj *SignedBeaconBlockHeader) SizeSSZ() int {
 	return s
 }
 
-func (obj *SignedBeaconBlockHeader) MarshalSSZTo(w []byte) error {
+func (obj *SignedBeaconBlockHeader) UnmarshalSSZ(s *ssz.Stream) error {
 	if obj.Header == nil {
 		obj.Header = new(BeaconBlockHeader)
 	}
-	if err := obj.Header.MarshalSSZTo(w); err != nil {
+	if err := obj.Header.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	ssz.EncodeBytes(w, obj.Signature)
-	return nil
-}
-
-func (obj *SignedBeaconBlockHeader) UnmarshalSSZ(r []byte) error {
-	if obj.Header == nil {
-		obj.Header = new(BeaconBlockHeader)
-	}
-	if err := obj.Header.UnmarshalSSZ(r); err != nil {
-		return err
-	}
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
@@ -3743,25 +2479,14 @@ func (obj *SignedVoluntaryExit) SizeSSZ() int {
 	return s
 }
 
-func (obj *SignedVoluntaryExit) MarshalSSZTo(w []byte) error {
+func (obj *SignedVoluntaryExit) UnmarshalSSZ(s *ssz.Stream) error {
 	if obj.Exit == nil {
 		obj.Exit = new(VoluntaryExit)
 	}
-	if err := obj.Exit.MarshalSSZTo(w); err != nil {
+	if err := obj.Exit.UnmarshalSSZ(s); err != nil {
 		return err
 	}
-	ssz.EncodeBytes(w, obj.Signature[:])
-	return nil
-}
-
-func (obj *SignedVoluntaryExit) UnmarshalSSZ(r []byte) error {
-	if obj.Exit == nil {
-		obj.Exit = new(VoluntaryExit)
-	}
-	if err := obj.Exit.UnmarshalSSZ(r); err != nil {
-		return err
-	}
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
@@ -3774,19 +2499,13 @@ func (obj *SigningRoot) SizeSSZ() int {
 	return s
 }
 
-func (obj *SigningRoot) MarshalSSZTo(w []byte) error {
-	ssz.EncodeBytes(w, obj.ObjectRoot)
-	ssz.EncodeBytes(w, obj.Domain)
-	return nil
-}
-
-func (obj *SigningRoot) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *SigningRoot) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.ObjectRoot = _v0
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
@@ -3799,19 +2518,13 @@ func (obj *SyncAggregate) SizeSSZ() int {
 	return s
 }
 
-func (obj *SyncAggregate) MarshalSSZTo(w []byte) error {
-	ssz.EncodeBytes(w, obj.SyncCommiteeBits)
-	ssz.EncodeBytes(w, obj.SyncCommiteeSignature[:])
-	return nil
-}
-
-func (obj *SyncAggregate) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *SyncAggregate) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.SyncCommiteeBits = _v0
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
@@ -3824,23 +2537,15 @@ func (obj *SyncCommittee) SizeSSZ() int {
 	return s
 }
 
-func (obj *SyncCommittee) MarshalSSZTo(w []byte) error {
-	for _, _v0 := range obj.PubKeys {
-		ssz.EncodeBytes(w, _v0)
-	}
-	ssz.EncodeBytes(w, obj.AggregatePubKey[:])
-	return nil
-}
-
-func (obj *SyncCommittee) UnmarshalSSZ(r []byte) error {
+func (obj *SyncCommittee) UnmarshalSSZ(s *ssz.Stream) error {
 	for _i0 := 0; _i0 < len(obj.PubKeys); _i0 += 1 {
-		r, _v1, _e2 := ssz.DecodeBytes(r)
+		_v1, _e2 := ssz.DecodeBytes(s)
 		if _e2 != nil {
 			return _e2
 		}
 		obj.PubKeys[_i0] = _v1
 	}
-	r, _v3, _e4 := ssz.DecodeBytes(r)
+	_v3, _e4 := ssz.DecodeBytes(s)
 	if _e4 != nil {
 		return _e4
 	}
@@ -3853,49 +2558,38 @@ func (obj *Transfer) SizeSSZ() int {
 	return s
 }
 
-func (obj *Transfer) MarshalSSZTo(w []byte) error {
-	ssz.EncodeUint64(w, obj.Sender)
-	ssz.EncodeUint64(w, obj.Recipient)
-	ssz.EncodeUint64(w, obj.Amount)
-	ssz.EncodeUint64(w, obj.Fee)
-	ssz.EncodeUint64(w, obj.Slot)
-	ssz.EncodeBytes(w, obj.Pubkey)
-	ssz.EncodeBytes(w, obj.Signature)
-	return nil
-}
-
-func (obj *Transfer) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *Transfer) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.Sender = _v0
-	r, _v2, _e3 := ssz.DecodeUint64(r)
+	_v2, _e3 := ssz.DecodeUint64(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.Recipient = _v2
-	r, _v4, _e5 := ssz.DecodeUint64(r)
+	_v4, _e5 := ssz.DecodeUint64(s)
 	if _e5 != nil {
 		return _e5
 	}
 	obj.Amount = _v4
-	r, _v6, _e7 := ssz.DecodeUint64(r)
+	_v6, _e7 := ssz.DecodeUint64(s)
 	if _e7 != nil {
 		return _e7
 	}
 	obj.Fee = _v6
-	r, _v8, _e9 := ssz.DecodeUint64(r)
+	_v8, _e9 := ssz.DecodeUint64(s)
 	if _e9 != nil {
 		return _e9
 	}
 	obj.Slot = _v8
-	r, _v10, _e11 := ssz.DecodeBytes(r)
+	_v10, _e11 := ssz.DecodeBytes(s)
 	if _e11 != nil {
 		return _e11
 	}
 	obj.Pubkey = _v10
-	r, _v12, _e13 := ssz.DecodeBytes(r)
+	_v12, _e13 := ssz.DecodeBytes(s)
 	if _e13 != nil {
 		return _e13
 	}
@@ -3908,55 +2602,43 @@ func (obj *Validator) SizeSSZ() int {
 	return s
 }
 
-func (obj *Validator) MarshalSSZTo(w []byte) error {
-	ssz.EncodeBytes(w, obj.Pubkey)
-	ssz.EncodeBytes(w, obj.WithdrawalCredentials)
-	ssz.EncodeUint64(w, obj.EffectiveBalance)
-	ssz.EncodeBool(w, bool(obj.Slashed))
-	ssz.EncodeUint64(w, obj.ActivationEligibilityEpoch)
-	ssz.EncodeUint64(w, obj.ActivationEpoch)
-	ssz.EncodeUint64(w, obj.ExitEpoch)
-	ssz.EncodeUint64(w, obj.WithdrawableEpoch)
-	return nil
-}
-
-func (obj *Validator) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeBytes(r)
+func (obj *Validator) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeBytes(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.Pubkey = _v0
-	r, _v2, _e3 := ssz.DecodeBytes(r)
+	_v2, _e3 := ssz.DecodeBytes(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.WithdrawalCredentials = _v2
-	r, _v4, _e5 := ssz.DecodeUint64(r)
+	_v4, _e5 := ssz.DecodeUint64(s)
 	if _e5 != nil {
 		return _e5
 	}
 	obj.EffectiveBalance = _v4
-	r, _v6, _e7 := ssz.DecodeBool(r)
+	_v6, _e7 := ssz.DecodeBool(s)
 	if _e7 != nil {
 		return _e7
 	}
 	obj.Slashed = SlashedT(_v6)
-	r, _v8, _e9 := ssz.DecodeUint64(r)
+	_v8, _e9 := ssz.DecodeUint64(s)
 	if _e9 != nil {
 		return _e9
 	}
 	obj.ActivationEligibilityEpoch = _v8
-	r, _v10, _e11 := ssz.DecodeUint64(r)
+	_v10, _e11 := ssz.DecodeUint64(s)
 	if _e11 != nil {
 		return _e11
 	}
 	obj.ActivationEpoch = _v10
-	r, _v12, _e13 := ssz.DecodeUint64(r)
+	_v12, _e13 := ssz.DecodeUint64(s)
 	if _e13 != nil {
 		return _e13
 	}
 	obj.ExitEpoch = _v12
-	r, _v14, _e15 := ssz.DecodeUint64(r)
+	_v14, _e15 := ssz.DecodeUint64(s)
 	if _e15 != nil {
 		return _e15
 	}
@@ -3969,19 +2651,13 @@ func (obj *VoluntaryExit) SizeSSZ() int {
 	return s
 }
 
-func (obj *VoluntaryExit) MarshalSSZTo(w []byte) error {
-	ssz.EncodeUint64(w, obj.Epoch)
-	ssz.EncodeUint64(w, obj.ValidatorIndex)
-	return nil
-}
-
-func (obj *VoluntaryExit) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *VoluntaryExit) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.Epoch = _v0
-	r, _v2, _e3 := ssz.DecodeUint64(r)
+	_v2, _e3 := ssz.DecodeUint64(s)
 	if _e3 != nil {
 		return _e3
 	}
@@ -3994,31 +2670,23 @@ func (obj *Withdrawal) SizeSSZ() int {
 	return s
 }
 
-func (obj *Withdrawal) MarshalSSZTo(w []byte) error {
-	ssz.EncodeUint64(w, obj.Index)
-	ssz.EncodeUint64(w, obj.ValidatorIndex)
-	ssz.EncodeBytes(w, obj.Address[:])
-	ssz.EncodeUint64(w, obj.Amount)
-	return nil
-}
-
-func (obj *Withdrawal) UnmarshalSSZ(r []byte) error {
-	r, _v0, _e1 := ssz.DecodeUint64(r)
+func (obj *Withdrawal) UnmarshalSSZ(s *ssz.Stream) error {
+	_v0, _e1 := ssz.DecodeUint64(s)
 	if _e1 != nil {
 		return _e1
 	}
 	obj.Index = _v0
-	r, _v2, _e3 := ssz.DecodeUint64(r)
+	_v2, _e3 := ssz.DecodeUint64(s)
 	if _e3 != nil {
 		return _e3
 	}
 	obj.ValidatorIndex = _v2
-	r, _v4, _e5 := ssz.DecodeBytes(r)
+	_v4, _e5 := ssz.DecodeBytes(s)
 	if _e5 != nil {
 		return _e5
 	}
 	obj.Address = [20]byte(_v4)
-	r, _v6, _e7 := ssz.DecodeUint64(r)
+	_v6, _e7 := ssz.DecodeUint64(s)
 	if _e7 != nil {
 		return _e7
 	}

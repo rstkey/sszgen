@@ -126,8 +126,9 @@ func generateDecoder(ctx *genContext, typ sszType) ([]byte, error) {
 		return nil, nil
 	}
 	// Generate `UnmarshalSSZ` binding
-	fmt.Fprintf(&b, "func (obj *%s) UnmarshalSSZ(r []byte) error {\n", typ.typeName())
-	fmt.Fprint(&b, typ.genDecoder(ctx, "r", "obj"))
+	ctx.addImport(pkgPath, "")
+	fmt.Fprintf(&b, "func (obj *%s) UnmarshalSSZ(s *%s) error {\n", typ.typeName(), ctx.qualifier(pkgPath, "Stream"))
+	fmt.Fprint(&b, typ.genDecoder(ctx, "s", "obj"))
 	fmt.Fprint(&b, "return nil\n")
 	fmt.Fprint(&b, "}\n")
 	return b.Bytes(), nil
@@ -137,7 +138,7 @@ func generate(ctx *genContext, typ sszType) ([]byte, error) {
 	var codes [][]byte
 	for _, fn := range []func(ctx *genContext, typ sszType) ([]byte, error){
 		generateSSZSize,
-		generateEncoder,
+		//generateEncoder,
 		generateDecoder,
 	} {
 		code, err := fn(ctx, typ)
