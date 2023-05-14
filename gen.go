@@ -138,7 +138,7 @@ func generate(ctx *genContext, typ sszType) ([]byte, error) {
 	var codes [][]byte
 	for _, fn := range []func(ctx *genContext, typ sszType) ([]byte, error){
 		generateSSZSize,
-		//generateEncoder,
+		generateEncoder,
 		generateDecoder,
 	} {
 		code, err := fn(ctx, typ)

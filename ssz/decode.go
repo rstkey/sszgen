@@ -5,10 +5,6 @@ import (
 	"errors"
 )
 
-var (
-	ErrX = errors.New("xx")
-)
-
 type Decoder interface {
 	UnmarshalSSZ(buf []byte) error
 }
@@ -22,78 +18,89 @@ func DecodeBool(s *Stream) (bool, error) {
 }
 
 func DecodeByte(s *Stream) (byte, error) {
-	return s.readByte()
+	b, err := s.readByte()
+	if err != nil {
+		return 0, err
+	}
+	return b, nil
 }
 
 func DecodeUint16(s *Stream) (uint16, error) {
-	var buf [2]byte
-	if err := s.readFull(buf[:]); err != nil {
+	buf, err := s.read(2)
+	if err != nil {
 		return 0, err
 	}
-	return binary.LittleEndian.Uint16(buf[:2]), nil
+	return binary.LittleEndian.Uint16(buf[:]), nil
 }
 
 func DecodeUint32(s *Stream) (uint32, error) {
-	var buf [4]byte
-	if err := s.readFull(buf[:]); err != nil {
+	buf, err := s.read(4)
+	if err != nil {
 		return 0, err
 	}
-	return binary.LittleEndian.Uint32(buf[:4]), nil
+	return binary.LittleEndian.Uint32(buf[:]), nil
 }
 
 func DecodeUint64(s *Stream) (uint64, error) {
-	var buf [8]byte
-	if err := s.readFull(buf[:]); err != nil {
+	buf, err := s.read(8)
+	if err != nil {
 		return 0, err
 	}
-	return binary.LittleEndian.Uint64(buf[:8]), nil
+	return binary.LittleEndian.Uint64(buf[:]), nil
 }
 
-func DecodeBytes(s *Stream) ([]byte, error) {
-	return s.readAll()
+func DecodeBytes(s *Stream, n int) ([]byte, error) {
+	return read(s, n)
 }
 
-func DecodeUint16s(s *Stream) ([]uint16, error) {
-	buf, err := s.readAll()
+func DecodeUint16s(s *Stream, n int) ([]uint16, error) {
+	buf, err := read(s, n)
 	if err != nil {
 		return nil, err
 	}
 	if len(buf)%2 != 0 {
-		return nil, ErrX
+		return nil, errors.New("invalid input for decoding uint16s")
 	}
-	var ret []uint16
+	ret := make([]uint16, len(buf)/2)
 	for i := 0; i < len(buf)/2; i++ {
-		ret = append(ret, binary.LittleEndian.Uint16(buf[2*i:2*i+1]))
+		ret[i] = binary.LittleEndian.Uint16(buf[2*i : 2*i+1])
 	}
 	return ret, nil
 }
 
-func DecodeUint32s(s *Stream) ([]uint32, error) {
-	buf, err := s.readAll()
+func DecodeUint32s(s *Stream, n int) ([]uint32, error) {
+	buf, err := read(s, n)
 	if err != nil {
 		return nil, err
 	}
 	if len(buf)%4 != 0 {
-		return nil, ErrX
+		return nil, errors.New("invalid input for decoding uint32s")
 	}
-	var ret []uint32
+	ret := make([]uint32, len(buf)/4)
 	for i := 0; i < len(buf)/4; i++ {
-		ret = append(ret, binary.LittleEndian.Uint32(buf[4*i:4*i+3]))
+		ret[i] = binary.LittleEndian.Uint32(buf[4*i : 4*i+3])
 	}
 	return ret, nil
 }
 
-func DecodeUint64s(s *Stream) ([]uint64, error) {
-	buf, err := s.readAll()
+func DecodeUint64s(s *Stream, n int) ([]uint64, error) {
+	buf, err := read(s, n)
 	if err != nil {
 		return nil, err
 	}
 	if len(buf)%8 != 0 {
-		return nil, ErrX
+		return nil, errors.New("invalid input for decoding uint64s")
 	}
-	var ret []uint64
+	ret := make([]uint64, len(buf)/8)
 	for i := 0; i < len(buf)/8; i++ {
-		ret = append(ret, binary.LittleEndian.Uint64(buf[8*i:8*i+7]))
+		ret[i] = binary.LittleEndian.Uint64(buf[8*i : 8*i+7])
 	}
 	return ret, nil
+}
+
+func read(s *Stream, n int) ([]byte, error) {
+	if n == 0 {
+		return s.readEnd()
+	}
+	return s.read(n)
 }
